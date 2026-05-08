@@ -5,347 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>เช็คอินช่าง — บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: #F5F4F0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 40px; color: #1a1a1a; }
 
-  body {
-    font-family: 'Sarabun', sans-serif;
-    background: #F5F4F0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 24px 16px 40px;
-    color: #1a1a1a;
-  }
+.header { text-align: center; margin-bottom: 24px; }
+.logo-badge { display: inline-flex; align-items: center; gap: 8px; background: #1a1a1a; color: #fff; padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+.logo-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.subtitle { font-size: 14px; color: #888; }
 
-  .header {
-    text-align: center;
-    margin-bottom: 24px;
-  }
+.card { background: #fff; border-radius: 20px; padding: 24px 20px; width: 100%; max-width: 400px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); margin-bottom: 12px; }
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #999; text-transform: uppercase; margin-bottom: 12px; }
+.input-group { margin-bottom: 14px; }
+.input-group label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 500; }
+.input-group input, .input-group select { width: 100%; padding: 12px 14px; border: 1.5px solid #e8e8e8; border-radius: 12px; font-size: 15px; font-family: 'Sarabun', sans-serif; color: #1a1a1a; background: #fafafa; transition: border-color 0.15s; outline: none; appearance: none; }
+.input-group input:focus, .input-group select:focus { border-color: #1a1a1a; background: #fff; }
 
-  .logo-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #1a1a1a;
-    color: #fff;
-    padding: 8px 18px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    margin-bottom: 16px;
-  }
+.site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.site-option { border: 1.5px solid #e8e8e8; border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fafafa; }
+.site-option:hover { border-color: #ccc; }
+.site-option.selected { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+.site-option.selected .site-floor { color: #aaa; }
+.site-icon { font-size: 20px; margin-bottom: 4px; }
+.site-name { font-size: 12px; font-weight: 600; }
+.site-floor { font-size: 11px; color: #999; margin-top: 2px; }
 
-  .logo-dot {
-    width: 8px; height: 8px;
-    background: #4ade80;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
+.gps-strip { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #e8e8e8; background: #fafafa; font-size: 13px; color: #888; margin-top: 4px; }
+.gps-strip.ok { border-color: #86efac; background: #f0fdf4; color: #166534; }
+.gps-strip.error { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+.gps-strip.checking { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+.gps-icon { font-size: 18px; flex-shrink: 0; }
+.gps-btn { margin-left: auto; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-family: 'Sarabun', sans-serif; cursor: pointer; flex-shrink: 0; }
+.gps-btn:disabled { background: #ccc; cursor: default; }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+.camera-area { border: 2px dashed #e8e8e8; border-radius: 14px; overflow: hidden; aspect-ratio: 4/3; position: relative; cursor: pointer; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+.camera-area:hover { border-color: #bbb; }
+.camera-placeholder { text-align: center; color: #bbb; pointer-events: none; }
+.camera-placeholder .cam-icon { font-size: 32px; margin-bottom: 8px; }
+.camera-placeholder p { font-size: 13px; }
+#preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+.retake-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-family: 'Sarabun', sans-serif; cursor: pointer; display: none; }
+#camera-input { display: none; }
 
-  h1 { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
-  .subtitle { font-size: 14px; color: #888; }
+.submit-btn { width: 100%; max-width: 400px; padding: 16px; background: #1a1a1a; color: #fff; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 12px; }
+.submit-btn:hover:not(:disabled) { opacity: 0.88; }
+.submit-btn:active:not(:disabled) { transform: scale(0.98); }
+.submit-btn:disabled { background: #ccc; cursor: default; }
+.checkout-btn { width: 100%; max-width: 400px; padding: 14px; background: #fff; color: #dc2626; border: 1.5px solid #fca5a5; border-radius: 16px; font-size: 15px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer; display: none; }
 
-  .card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 24px 20px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-    margin-bottom: 12px;
-  }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.overlay.show { display: flex; }
+.spinner { width: 40px; height: 40px; border: 3px solid #e5e5e5; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.overlay-text { font-size: 15px; color: #555; font-weight: 500; }
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: #999;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
+.success-screen { display: none; flex-direction: column; align-items: center; text-align: center; padding: 40px 20px; width: 100%; max-width: 400px; }
+.success-screen.show { display: flex; }
+.success-circle { width: 80px; height: 80px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; animation: pop 0.3s ease; }
+@keyframes pop { 0%{transform:scale(0.5);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+.success-screen h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.success-screen p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 24px; }
+.success-detail { font-size: 13px; background: #f5f4f0; border-radius: 12px; padding: 14px 18px; width: 100%; text-align: left; line-height: 1.9; }
+.detail-row { display: flex; gap: 8px; }
+.detail-key { color: #999; min-width: 60px; }
+.detail-val { color: #1a1a1a; font-weight: 500; }
 
-  .input-group { margin-bottom: 14px; }
-
-  .input-group label {
-    display: block;
-    font-size: 13px;
-    color: #555;
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-
-  .input-group input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid #e8e8e8;
-    border-radius: 12px;
-    font-size: 15px;
-    font-family: 'Sarabun', sans-serif;
-    color: #1a1a1a;
-    background: #fafafa;
-    transition: border-color 0.15s;
-    outline: none;
-  }
-
-  .input-group input:focus { border-color: #1a1a1a; background: #fff; }
-  .input-group select {
-    width: 100%; padding: 12px 14px;
-    border: 1.5px solid #e8e8e8; border-radius: 12px;
-    font-size: 15px; font-family: 'Sarabun', sans-serif;
-    color: #1a1a1a; background: #fafafa; outline: none;
-    appearance: none; cursor: pointer;
-  }
-  .input-group select:focus { border-color: #1a1a1a; background: #fff; }
-
-  /* Site selector */
-  .site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-  .site-option {
-    border: 1.5px solid #e8e8e8;
-    border-radius: 12px;
-    padding: 12px 10px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s;
-    background: #fafafa;
-  }
-
-  .site-option:hover { border-color: #ccc; }
-  .site-option.selected { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
-  .site-option.selected .site-icon { color: #fff; }
-
-  .site-icon { font-size: 20px; margin-bottom: 4px; }
-  .site-name { font-size: 12px; font-weight: 600; }
-  .site-floor { font-size: 11px; color: #999; margin-top: 2px; }
-  .site-option.selected .site-floor { color: #aaa; }
-
-  /* GPS strip */
-  .gps-strip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    border: 1.5px solid #e8e8e8;
-    background: #fafafa;
-    font-size: 13px;
-    color: #888;
-    margin-top: 4px;
-  }
-
-  .gps-strip.ok { border-color: #86efac; background: #f0fdf4; color: #166534; }
-  .gps-strip.error { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
-  .gps-strip.checking { border-color: #fde68a; background: #fffbeb; color: #92400e; }
-
-  .gps-icon { font-size: 18px; flex-shrink: 0; }
-
-  .gps-btn {
-    margin-left: auto;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-family: 'Sarabun', sans-serif;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .gps-btn:disabled { background: #ccc; cursor: default; }
-
-  /* Camera */
-  .camera-area {
-    border: 2px dashed #e8e8e8;
-    border-radius: 14px;
-    overflow: hidden;
-    aspect-ratio: 4/3;
-    position: relative;
-    cursor: pointer;
-    background: #f5f5f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .camera-area:hover { border-color: #bbb; }
-
-  .camera-placeholder {
-    text-align: center;
-    color: #bbb;
-    pointer-events: none;
-  }
-
-  .camera-placeholder .cam-icon { font-size: 32px; margin-bottom: 8px; }
-  .camera-placeholder p { font-size: 13px; }
-
-  #preview-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none;
-  }
-
-  .retake-btn {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-family: 'Sarabun', sans-serif;
-    cursor: pointer;
-    display: none;
-  }
-
-  #camera-input { display: none; }
-
-  /* Submit button */
-  .submit-btn {
-    width: 100%;
-    max-width: 400px;
-    padding: 16px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    font-family: 'Sarabun', sans-serif;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-    margin-bottom: 12px;
-  }
-
-  .submit-btn:hover:not(:disabled) { opacity: 0.88; }
-  .submit-btn:active:not(:disabled) { transform: scale(0.98); }
-  .submit-btn:disabled { background: #ccc; cursor: default; }
-
-  .checkout-btn {
-    width: 100%;
-    max-width: 400px;
-    padding: 14px;
-    background: #fff;
-    color: #dc2626;
-    border: 1.5px solid #fca5a5;
-    border-radius: 16px;
-    font-size: 15px;
-    font-weight: 600;
-    font-family: 'Sarabun', sans-serif;
-    cursor: pointer;
-    display: none;
-  }
-
-  /* Loading overlay */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(255,255,255,0.85);
-    z-index: 99;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-  }
-
-  .overlay.show { display: flex; }
-
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid #e5e5e5;
-    border-top-color: #1a1a1a;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .overlay-text { font-size: 15px; color: #555; font-weight: 500; }
-
-  /* Success screen */
-  .success-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 40px 20px;
-    width: 100%;
-    max-width: 400px;
-  }
-
-  .success-screen.show { display: flex; }
-
-  .success-circle {
-    width: 80px; height: 80px;
-    background: #f0fdf4;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    margin-bottom: 20px;
-    animation: pop 0.3s ease;
-  }
-
-  @keyframes pop {
-    0% { transform: scale(0.5); opacity: 0; }
-    80% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .success-screen h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-  .success-screen p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 24px; }
-  .success-detail { font-size: 13px; background: #f5f4f0; border-radius: 12px; padding: 14px 18px; width: 100%; text-align: left; line-height: 1.9; }
-  .detail-row { display: flex; gap: 8px; }
-  .detail-key { color: #999; min-width: 60px; }
-  .detail-val { color: #1a1a1a; font-weight: 500; }
-
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #1a1a1a;
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 500;
-    transition: transform 0.3s;
-    z-index: 200;
-    white-space: nowrap;
-  }
-
-  .toast.show { transform: translateX(-50%) translateY(0); }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1a1a; color: #fff; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; transition: transform 0.3s; z-index: 200; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="header">
-  <div class="logo-badge">
-    <div class="logo-dot"></div>
-    บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย
-  </div>
+  <div class="logo-badge"><div class="logo-dot"></div>บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</div>
   <h1>เช็คอินเข้างาน</h1>
   <p class="subtitle" id="today-label"></p>
 </div>
 
-<!-- FORM -->
 <div id="main-form">
-
   <!-- ข้อมูลช่าง -->
   <div class="card">
     <div class="section-label">ข้อมูลช่าง</div>
@@ -357,7 +96,7 @@
     </div>
     <div id="tel-wrap" class="input-group" style="display:none;">
       <label>เบอร์โทรศัพท์</label>
-      <input type="tel" id="tel" placeholder="08x-xxx-xxxx" autocomplete="tel" readonly style="background:#f5f5f5;color:#888;" />
+      <input type="tel" id="tel" placeholder="08x-xxx-xxxx" readonly style="background:#f5f5f5;color:#888;" />
     </div>
     <input type="hidden" id="name" />
   </div>
@@ -365,7 +104,9 @@
   <!-- เลือกไซต์งาน -->
   <div class="card">
     <div class="section-label">เลือกไซต์งาน</div>
-    <div class="site-grid" id="site-grid"></div>
+    <div class="site-grid" id="site-grid">
+      <div style="color:#aaa;font-size:13px;padding:8px;grid-column:1/-1;">กำลังโหลดไซต์งาน...</div>
+    </div>
   </div>
 
   <!-- GPS -->
@@ -391,359 +132,321 @@
     </div>
     <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handlePhoto(event)" />
   </div>
-
 </div>
 
-<!-- Buttons -->
 <button class="submit-btn" id="submit-btn" onclick="submitCheckin()" disabled>เช็คอินเข้างาน</button>
 <button class="checkout-btn" id="checkout-btn" onclick="submitCheckout()">เช็คเอาท์ออกงาน</button>
 
-<!-- Success -->
 <div class="success-screen" id="success-screen">
   <div class="success-circle">✅</div>
   <h2 id="success-title">เช็คอินสำเร็จ!</h2>
-  <p id="success-msg">ระบบบันทึกข้อมูลแล้ว<br>แจ้งเตือนผู้จัดการเรียบร้อย</p>
+  <p id="success-msg">ระบบบันทึกข้อมูลแล้ว</p>
   <div class="success-detail" id="success-detail"></div>
 </div>
 
-<!-- Loading -->
 <div class="overlay" id="overlay">
   <div class="spinner"></div>
   <div class="overlay-text" id="overlay-text">กำลังบันทึก...</div>
 </div>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, update, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import { getStorage, ref as sRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+<script>
+// ── CONFIG ──────────────────────────────
+var FIREBASE_CFG = {
+  apiKey: "AIzaSyDWyYUy2bMQr339i1rJw1CvvTZb2L9L1VI",
+  authDomain: "jm-checkin.firebaseapp.com",
+  databaseURL: "https://jm-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jm-checkin",
+  storageBucket: "jm-checkin.firebasestorage.app",
+};
+var LINE_NOTIFY_TOKEN = "YOUR_LINE_NOTIFY_TOKEN";
+var LINE_PROXY = "https://YOUR_WORKER.workers.dev/notify";
+// ────────────────────────────────────────
 
-  // ===== CONFIG — แก้ค่าเหล่านี้หลัง setup Firebase =====
-  const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyDWyYUy2bMQr339i1rJw1CvvTZb2L9L1VI",
-    authDomain: "jm-checkin.firebaseapp.com",
-    databaseURL: "https://jm-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "jm-checkin",
-    storageBucket: "jm-checkin.firebasestorage.app",
-  };
+var SITES   = [];
+var MEMBERS = [];
+var selectedSite   = null;
+var selectedMember = null;
+var gpsOK       = false;
+var photoData   = null;
+var userCoords  = null;
+var currentRecordId = null;
+var fbDb  = null;
+var fbFns = null;
+var fbStorage = null;
+var fbStorageFns = null;
 
-  const LINE_NOTIFY_TOKEN = "YOUR_LINE_NOTIFY_TOKEN"; // Token จาก notify.line.me
-  const LINE_PROXY = "https://YOUR_WORKER.workers.dev/notify";
+// Date
+var d = new Date();
+document.getElementById("today-label").textContent =
+  d.toLocaleDateString("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
-  // ========================================================
+var siteParam = new URLSearchParams(location.search).get("site");
 
-  const app = initializeApp(FIREBASE_CONFIG);
-  const db = getDatabase(app);
-  const storage = getStorage(app);
+// ── Boot Firebase ─────────────────────────
+import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js")
+  .then(function(appMod) {
+    var app = appMod.initializeApp(FIREBASE_CFG);
+    return Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"),
+    ]).then(function(mods) {
+      fbFns = mods[0];
+      fbDb  = fbFns.getDatabase(app);
+      fbStorageFns = mods[1];
+      fbStorage = fbStorageFns.getStorage(app);
 
-  // State
-  let SITES = [];
-  let MEMBERS = [];
-  let selectedSite = null;
-  let selectedMember = null;
-  let gpsOK = false;
-  let photoData = null;
-  let userCoords = null;
-  let currentRecordId = null;
+      // Load members
+      fbFns.onValue(fbFns.ref(fbDb, "members"), function(snap) {
+        MEMBERS = [];
+        snap.forEach(function(c) {
+          var m = c.val();
+          if (m.status !== "inactive") MEMBERS.push(Object.assign({ key: c.key }, m));
+        });
+        var sel = document.getElementById("name-select");
+        sel.innerHTML = '<option value="">-- เลือกชื่อทีมงาน --</option>';
+        MEMBERS.forEach(function(m) {
+          var opt = document.createElement("option");
+          opt.value = m.key;
+          opt.textContent = m.name + (m.position ? " (" + m.position + ")" : "");
+          sel.appendChild(opt);
+        });
+      });
 
-  // ── โหลดรายชื่อทีมงานจาก Firebase ──
-  onValue(ref(db, "members"), snap => {
-    MEMBERS = [];
-    snap.forEach(child => {
-      const m = child.val();
-      if (m.status !== "inactive") MEMBERS.push({ key: child.key, ...m });
+      // Load sites
+      fbFns.onValue(fbFns.ref(fbDb, "sites"), function(snap) {
+        SITES = [];
+        snap.forEach(function(c) {
+          var s = c.val();
+          if (s.status !== "inactive") SITES.push(Object.assign({ key: c.key }, s));
+        });
+        buildSiteGrid();
+      });
     });
-    const sel = document.getElementById("name-select");
-    sel.innerHTML = '<option value="">-- เลือกชื่อทีมงาน --</option>';
-    MEMBERS.forEach(m => {
-      const opt = document.createElement("option");
-      opt.value = m.key;
-      opt.textContent = m.name + (m.position ? ' (' + m.position + ')' : '');
-      sel.appendChild(opt);
-    });
-  });
+  })
+  .catch(function(e) { showToast("❌ Firebase: " + e.message); });
 
-  window.onSelectMember = function(key) {
-    selectedMember = MEMBERS.find(m => m.key === key) || null;
-    document.getElementById("name").value = selectedMember ? selectedMember.name : "";
-    if (selectedMember && selectedMember.tel) {
-      document.getElementById("tel").value = selectedMember.tel;
-      document.getElementById("tel-wrap").style.display = "block";
-    } else {
-      document.getElementById("tel").value = "";
-      document.getElementById("tel-wrap").style.display = "none";
-    }
-    checkReady();
-  };
-
-  // Date header
-  const d = new Date();
-  document.getElementById("today-label").textContent =
-    d.toLocaleDateString("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
-  // ── โหลดไซต์งานจาก Firebase ──
-  const grid = document.getElementById("site-grid");
-  const siteParam = new URLSearchParams(location.search).get("site");
-  grid.innerHTML = `<div style="color:#aaa;font-size:13px;padding:8px;">กำลังโหลดไซต์งาน...</div>`;
-
-  onValue(ref(db, "sites"), snap => {
-    SITES = [];
-    snap.forEach(child => {
-      const s = child.val();
-      if (s.status !== "inactive") {
-        SITES.push({ key: child.key, id: s.siteId || child.key, name: s.name, floor: s.floor || "", lat: s.lat, lng: s.lng, radius: s.radius || 150 });
-      }
-    });
-
-    grid.innerHTML = "";
-    if (!SITES.length) {
-      grid.innerHTML = `<div style="color:#888;font-size:13px;padding:12px;">ยังไม่มีไซต์งาน กรุณาตั้งค่าใน sites.html ก่อน</div>`;
-      return;
-    }
-
-    SITES.forEach(s => {
-      const el = document.createElement("div");
-      el.className = "site-option";
-      el.id = "site-key-" + s.key;
-      el.innerHTML = `<div class="site-icon">🏗️</div><div class="site-name">${s.name}</div><div class="site-floor">${s.floor}</div>`;
-      el.onclick = () => {
-        document.querySelectorAll(".site-option").forEach(x => x.classList.remove("selected"));
-        el.classList.add("selected");
-        selectedSite = s;
-        gpsOK = false;
-        document.getElementById("gps-strip").className = "gps-strip";
-        document.getElementById("gps-text").textContent = "กดปุ่มเพื่อตรวจสอบตำแหน่งของคุณ";
-        document.getElementById("gps-btn").disabled = false;
-        checkReady();
-      };
-      grid.appendChild(el);
-    });
-
-    if (siteParam) {
-      const found = SITES.find(s => s.id && s.id.toUpperCase() === siteParam.toUpperCase());
-      if (found) document.getElementById("site-key-" + found.key)?.click();
-    }
-  });
-
-  // GPS
-  window.checkGPS = function() {
-    const strip = document.getElementById("gps-strip");
-    const txt = document.getElementById("gps-text");
-    const btn = document.getElementById("gps-btn");
-    strip.className = "gps-strip checking";
-    txt.textContent = "กำลังดึงตำแหน่ง...";
-    btn.disabled = true;
-
-    if (!navigator.geolocation) {
-      strip.className = "gps-strip error";
-      txt.textContent = "อุปกรณ์ไม่รองรับ GPS";
-      btn.disabled = false;
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        if (!selectedSite) {
-          strip.className = "gps-strip checking";
-          txt.textContent = `พิกัด: ${userCoords.lat.toFixed(5)}, ${userCoords.lng.toFixed(5)} — กรุณาเลือกไซต์งาน`;
-          btn.disabled = false;
-          gpsOK = false;
-          checkReady();
-          return;
-        }
-        const dist = getDistance(userCoords.lat, userCoords.lng, selectedSite.lat, selectedSite.lng);
-        if (dist <= selectedSite.radius) {
-          gpsOK = true;
-          strip.className = "gps-strip ok";
-          txt.textContent = `✓ อยู่ใน ${selectedSite.name} (ห่าง ${Math.round(dist)} ม.)`;
-        } else {
-          gpsOK = false;
-          strip.className = "gps-strip error";
-          txt.textContent = `อยู่นอกพื้นที่ (ห่าง ${Math.round(dist)} ม. จากไซต์)`;
-          btn.disabled = false;
-        }
-        checkReady();
-      },
-      err => {
-        strip.className = "gps-strip error";
-        txt.textContent = "ไม่สามารถดึงตำแหน่งได้ — กรุณาอนุญาต Location";
-        btn.disabled = false;
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
-  function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371000;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+function buildSiteGrid() {
+  var grid = document.getElementById("site-grid");
+  grid.innerHTML = "";
+  if (!SITES.length) {
+    grid.innerHTML = '<div style="color:#aaa;font-size:13px;padding:8px;grid-column:1/-1;">ยังไม่มีไซต์งาน</div>';
+    return;
   }
-
-  // Camera
-  window.triggerCamera = () => document.getElementById("camera-input").click();
-
-  window.handlePhoto = function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      photoData = ev.target.result;
-      document.getElementById("preview-img").src = photoData;
-      document.getElementById("preview-img").style.display = "block";
-      document.getElementById("cam-placeholder").style.display = "none";
-      document.getElementById("retake-btn").style.display = "block";
+  SITES.forEach(function(s) {
+    var el = document.createElement("div");
+    el.className = "site-option";
+    el.id = "site-key-" + s.key;
+    el.innerHTML = '<div class="site-icon">🏗️</div><div class="site-name">' + s.name + '</div><div class="site-floor">' + (s.floor || "") + '</div>';
+    el.onclick = function() {
+      document.querySelectorAll(".site-option").forEach(function(x) { x.classList.remove("selected"); });
+      el.classList.add("selected");
+      selectedSite = s;
+      gpsOK = false;
+      document.getElementById("gps-strip").className = "gps-strip";
+      document.getElementById("gps-text").textContent = "กดปุ่มเพื่อตรวจสอบตำแหน่งของคุณ";
+      document.getElementById("gps-btn").disabled = false;
       checkReady();
     };
-    reader.readAsDataURL(file);
-  };
+    grid.appendChild(el);
+  });
+  // Auto-select จาก URL param
+  if (siteParam) {
+    var found = SITES.find(function(s) { return s.siteId && s.siteId.toUpperCase() === siteParam.toUpperCase(); });
+    if (found) document.getElementById("site-key-" + found.key).click();
+  }
+}
 
-  window.retakePhoto = function(e) {
-    e.stopPropagation();
-    photoData = null;
-    document.getElementById("preview-img").style.display = "none";
-    document.getElementById("cam-placeholder").style.display = "block";
-    document.getElementById("retake-btn").style.display = "none";
+function onSelectMember(key) {
+  selectedMember = MEMBERS.find(function(m) { return m.key === key; }) || null;
+  document.getElementById("name").value = selectedMember ? selectedMember.name : "";
+  if (selectedMember && selectedMember.tel) {
+    document.getElementById("tel").value = selectedMember.tel;
+    document.getElementById("tel-wrap").style.display = "block";
+  } else {
+    document.getElementById("tel").value = "";
+    document.getElementById("tel-wrap").style.display = "none";
+  }
+  checkReady();
+}
+
+// ── GPS ───────────────────────────────────
+function checkGPS() {
+  var strip = document.getElementById("gps-strip");
+  var txt   = document.getElementById("gps-text");
+  var btn   = document.getElementById("gps-btn");
+  strip.className = "gps-strip checking";
+  txt.textContent = "กำลังดึงตำแหน่ง...";
+  btn.disabled = true;
+  if (!navigator.geolocation) {
+    strip.className = "gps-strip error";
+    txt.textContent = "อุปกรณ์ไม่รองรับ GPS";
+    btn.disabled = false; return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if (!selectedSite) {
+        strip.className = "gps-strip checking";
+        txt.textContent = "พิกัด: " + userCoords.lat.toFixed(5) + ", " + userCoords.lng.toFixed(5) + " — กรุณาเลือกไซต์งาน";
+        btn.disabled = false; gpsOK = false; checkReady(); return;
+      }
+      var dist = getDistance(userCoords.lat, userCoords.lng, selectedSite.lat, selectedSite.lng);
+      if (dist <= (selectedSite.radius || 150)) {
+        gpsOK = true;
+        strip.className = "gps-strip ok";
+        txt.textContent = "✓ อยู่ใน " + selectedSite.name + " (ห่าง " + Math.round(dist) + " ม.)";
+      } else {
+        gpsOK = false;
+        strip.className = "gps-strip error";
+        txt.textContent = "อยู่นอกพื้นที่ (ห่าง " + Math.round(dist) + " ม. จากไซต์)";
+        btn.disabled = false;
+      }
+      checkReady();
+    },
+    function() {
+      document.getElementById("gps-strip").className = "gps-strip error";
+      document.getElementById("gps-text").textContent = "ไม่สามารถดึงตำแหน่งได้ — กรุณาอนุญาต Location";
+      document.getElementById("gps-btn").disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  var R = 6371000;
+  var dLat = (lat2-lat1)*Math.PI/180;
+  var dLon = (lon2-lon1)*Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ── Camera ────────────────────────────────
+function triggerCamera() { document.getElementById("camera-input").click(); }
+
+function handlePhoto(e) {
+  var file = e.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    photoData = ev.target.result;
+    document.getElementById("preview-img").src = photoData;
+    document.getElementById("preview-img").style.display = "block";
+    document.getElementById("cam-placeholder").style.display = "none";
+    document.getElementById("retake-btn").style.display = "block";
     checkReady();
   };
+  reader.readAsDataURL(file);
+}
 
-  function checkReady() {
-    const name = document.getElementById("name").value.trim();
-    const ok = name && selectedSite && gpsOK && photoData;
-    document.getElementById("submit-btn").disabled = !ok;
-  }
+function retakePhoto(e) {
+  e.stopPropagation();
+  photoData = null;
+  document.getElementById("preview-img").style.display = "none";
+  document.getElementById("cam-placeholder").style.display = "block";
+  document.getElementById("retake-btn").style.display = "none";
+  checkReady();
+}
 
-  // Submit check-in
-  window.submitCheckin = async function() {
-    const name = document.getElementById("name").value.trim();
-    const tel = document.getElementById("tel").value.trim();
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
-    const dateStr = now.toLocaleDateString("th-TH");
+function checkReady() {
+  var name = document.getElementById("name").value.trim();
+  document.getElementById("submit-btn").disabled = !(name && selectedSite && gpsOK && photoData);
+}
 
-    showOverlay("กำลังอัปโหลดรูป...");
+// ── Submit Check-in ───────────────────────
+function submitCheckin() {
+  var name = document.getElementById("name").value.trim();
+  var tel  = document.getElementById("tel").value.trim();
+  var now  = new Date();
+  var timeStr = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+  var dateStr = now.toLocaleDateString("th-TH");
 
-    try {
-      // Upload photo to Firebase Storage
-      const photoRef = sRef(storage, `checkins/${now.getTime()}_${name}.jpg`);
-      await uploadString(photoRef, photoData, "data_url");
-      const photoURL = await getDownloadURL(photoRef);
+  showOverlay("กำลังอัปโหลดรูป...");
 
+  // Upload photo
+  var photoRef = fbStorageFns.ref(fbStorage, "checkins/" + now.getTime() + "_" + name + ".jpg");
+  fbStorageFns.uploadString(photoRef, photoData, "data_url")
+    .then(function() { return fbStorageFns.getDownloadURL(photoRef); })
+    .then(function(photoURL) {
       setOverlayText("กำลังบันทึกข้อมูล...");
-
-      // Save to Realtime Database
-      const record = {
-        name, tel,
+      var record = {
+        name: name, tel: tel,
         site: selectedSite.name,
-        siteFloor: selectedSite.floor,
+        siteFloor: selectedSite.floor || "",
         checkinTime: timeStr,
         checkinDate: dateStr,
         checkinTs: now.getTime(),
-        lat: userCoords.lat,
-        lng: userCoords.lng,
-        photoURL,
+        lat: userCoords.lat, lng: userCoords.lng,
+        photoURL: photoURL,
         status: "in",
       };
-
-      const newRef = await push(ref(db, "checkins"), record);
+      return fbFns.push(fbFns.ref(fbDb, "checkins"), record);
+    })
+    .then(function(newRef) {
       currentRecordId = newRef.key;
-
-      setOverlayText("กำลังแจ้งเตือน Line...");
-
-      // Line Notify via proxy
-      await notifyLine(`✅ ช่างเช็คอิน\n👷 ${name} (${tel})\n📍 ${selectedSite.name} ${selectedSite.floor}\n🕐 ${timeStr} น.\n🗓️ ${dateStr}\n📸 รูปภาพ: ${photoURL}`);
-
+      setOverlayText("กำลังแจ้งเตือน...");
+      notifyLine("✅ ช่างเช็คอิน\n👷 " + name + (tel ? " (" + tel + ")" : "") + "\n📍 " + selectedSite.name + " " + (selectedSite.floor||"") + "\n🕐 " + timeStr + " น.\n🗓️ " + dateStr);
       hideOverlay();
-      showSuccess(name, selectedSite.name, timeStr, dateStr, photoURL);
-
-    } catch (err) {
-      hideOverlay();
-      showToast("❌ เกิดข้อผิดพลาด: " + err.message);
-      console.error(err);
-    }
-  };
-
-  // Submit check-out
-  window.submitCheckout = async function() {
-    if (!currentRecordId) return;
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
-
-    showOverlay("กำลังบันทึกเช็คเอาท์...");
-
-    try {
-      await update(ref(db, `checkins/${currentRecordId}`), {
-        checkoutTime: timeStr,
-        checkoutTs: now.getTime(),
-        status: "out",
-      });
-
-      const name = document.getElementById("name").value.trim();
-      await notifyLine(`🔴 ช่างเช็คเอาท์\n👷 ${name}\n📍 ${selectedSite.name}\n🕐 ${timeStr} น.`);
-
-      hideOverlay();
-      document.getElementById("success-title").textContent = "เช็คเอาท์สำเร็จ!";
-      document.getElementById("success-msg").textContent = `บันทึกเวลาออก ${timeStr} น. เรียบร้อย`;
-      document.getElementById("checkout-btn").style.display = "none";
-
-    } catch (err) {
+      showSuccess(name, selectedSite.name, timeStr, dateStr);
+    })
+    .catch(function(err) {
       hideOverlay();
       showToast("❌ " + err.message);
-    }
-  };
+    });
+}
 
-  async function notifyLine(message) {
-    try {
-      await fetch(LINE_PROXY, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: LINE_NOTIFY_TOKEN, message }),
-      });
-    } catch(e) {
-      console.warn("Line notify failed:", e);
-    }
-  }
+function submitCheckout() {
+  if (!currentRecordId) return;
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+  showOverlay("กำลังบันทึกเช็คเอาท์...");
+  fbFns.update(fbFns.ref(fbDb, "checkins/" + currentRecordId), {
+    checkoutTime: timeStr, checkoutTs: now.getTime(), status: "out"
+  }).then(function() {
+    var name = document.getElementById("name").value.trim();
+    notifyLine("🔴 ช่างเช็คเอาท์\n👷 " + name + "\n📍 " + selectedSite.name + "\n🕐 " + timeStr + " น.");
+    hideOverlay();
+    document.getElementById("success-title").textContent = "เช็คเอาท์สำเร็จ!";
+    document.getElementById("success-msg").textContent = "บันทึกเวลาออก " + timeStr + " น. เรียบร้อย";
+    document.getElementById("checkout-btn").style.display = "none";
+  }).catch(function(e) { hideOverlay(); showToast("❌ " + e.message); });
+}
 
-  function showSuccess(name, site, time, date, photoURL) {
-    document.getElementById("main-form").style.display = "none";
-    document.getElementById("submit-btn").style.display = "none";
-    const sc = document.getElementById("success-screen");
-    sc.classList.add("show");
-    document.getElementById("success-detail").innerHTML = `
-      <div class="detail-row"><span class="detail-key">ชื่อ</span><span class="detail-val">${name}</span></div>
-      <div class="detail-row"><span class="detail-key">ไซต์</span><span class="detail-val">${site}</span></div>
-      <div class="detail-row"><span class="detail-key">เวลา</span><span class="detail-val">${time} น.</span></div>
-      <div class="detail-row"><span class="detail-key">วันที่</span><span class="detail-val">${date}</span></div>
-      <div class="detail-row" style="margin-top:8px;"><span class="detail-key">รูป</span><a href="${photoURL}" target="_blank" style="color:#1a1a1a;font-weight:500;font-size:13px;">ดูรูปภาพ →</a></div>
-    `;
-    document.getElementById("checkout-btn").style.display = "block";
-  }
+function notifyLine(msg) {
+  try {
+    fetch(LINE_PROXY, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: LINE_NOTIFY_TOKEN, message: msg }) });
+  } catch(e) {}
+}
 
-  function showOverlay(txt) {
-    document.getElementById("overlay-text").textContent = txt;
-    document.getElementById("overlay").classList.add("show");
-  }
+function showSuccess(name, site, time, date) {
+  document.getElementById("main-form").style.display = "none";
+  document.getElementById("submit-btn").style.display = "none";
+  var sc = document.getElementById("success-screen");
+  sc.classList.add("show");
+  document.getElementById("success-detail").innerHTML =
+    '<div class="detail-row"><span class="detail-key">ชื่อ</span><span class="detail-val">' + name + '</span></div>' +
+    '<div class="detail-row"><span class="detail-key">ไซต์</span><span class="detail-val">' + site + '</span></div>' +
+    '<div class="detail-row"><span class="detail-key">เวลา</span><span class="detail-val">' + time + ' น.</span></div>' +
+    '<div class="detail-row"><span class="detail-key">วันที่</span><span class="detail-val">' + date + '</span></div>';
+  document.getElementById("checkout-btn").style.display = "block";
+}
 
-  function setOverlayText(txt) {
-    document.getElementById("overlay-text").textContent = txt;
-  }
+function showOverlay(txt) { document.getElementById("overlay-text").textContent = txt; document.getElementById("overlay").classList.add("show"); }
+function setOverlayText(txt) { document.getElementById("overlay-text").textContent = txt; }
+function hideOverlay() { document.getElementById("overlay").classList.remove("show"); }
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._t); t._t = setTimeout(function() { t.classList.remove("show"); }, 3000);
+}
 
-  function hideOverlay() {
-    document.getElementById("overlay").classList.remove("show");
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById("toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 3000);
-  }
-
-  // Auto-select ไซต์จาก URL จัดการใน onValue แล้ว
+// Expose
+window.onSelectMember = onSelectMember;
+window.checkGPS       = checkGPS;
+window.triggerCamera  = triggerCamera;
+window.handlePhoto    = handlePhoto;
+window.retakePhoto    = retakePhoto;
+window.submitCheckin  = submitCheckin;
+window.submitCheckout = submitCheckout;
 </script>
 </body>
 </html>
