@@ -5,282 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard ผู้จัดการ — บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: #F5F4F0; min-height: 100vh; color: #1a1a1a; }
 
-  body {
-    font-family: 'Sarabun', sans-serif;
-    background: #F5F4F0;
-    min-height: 100vh;
-    color: #1a1a1a;
-  }
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 220px;
+  background: #1a1a1a; color: #fff; padding: 28px 20px;
+  display: flex; flex-direction: column; z-index: 10;
+}
+.sidebar-logo { font-size: 13px; font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
+.sidebar-sub { font-size: 12px; color: #888; margin-bottom: 32px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; font-size: 14px;
+  color: #aaa; cursor: pointer; margin-bottom: 4px;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: 'Sarabun', sans-serif; transition: all 0.15s;
+}
+.nav-item:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-item.active { color: #fff; background: rgba(255,255,255,0.12); }
+.live-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; display: inline-block; margin-right: 6px; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.sidebar-footer { margin-top: auto; font-size: 12px; color: #555; }
 
-  /* Sidebar */
-  .sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 220px;
-    background: #1a1a1a;
-    color: #fff;
-    padding: 28px 20px;
-    display: flex;
-    flex-direction: column;
-    z-index: 10;
-  }
+.main { margin-left: 220px; padding: 32px 28px; }
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+.page-title { font-size: 22px; font-weight: 700; }
+.page-date { font-size: 13px; color: #888; margin-top: 2px; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-  .sidebar-logo {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    margin-bottom: 4px;
-  }
+.filter-select {
+  padding: 8px 12px; border: 1.5px solid #e8e8e8; border-radius: 10px;
+  font-size: 13px; font-family: 'Sarabun', sans-serif;
+  background: #fff; color: #1a1a1a; cursor: pointer;
+}
+.btn {
+  padding: 8px 16px; border-radius: 10px; font-size: 13px;
+  font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer;
+  border: 1.5px solid #e8e8e8; background: #fff; color: #1a1a1a; transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.7; }
+.btn-dark { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 
-  .sidebar-sub { font-size: 12px; color: #888; margin-bottom: 32px; }
+/* Work time setting bar */
+.setting-bar {
+  background: #fff; border-radius: 12px; border: 1px solid #f0f0f0;
+  padding: 12px 18px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.setting-label { font-size: 13px; color: #888; }
+.setting-time { font-size: 14px; font-weight: 600; }
+.time-input {
+  padding: 5px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px;
+  font-size: 14px; font-family: 'Sarabun', sans-serif; width: 90px;
+}
+.save-time-btn {
+  padding: 5px 14px; border-radius: 8px; font-size: 13px;
+  font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer;
+  border: none; background: #1a1a1a; color: #fff;
+}
 
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 14px;
-    color: #aaa;
-    cursor: pointer;
-    margin-bottom: 4px;
-    transition: all 0.15s;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-  }
+.metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+.metric { background: #fff; border-radius: 14px; padding: 16px 18px; border: 1px solid #f0f0f0; }
+.metric-num { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.metric-label { font-size: 12px; color: #888; }
+.num-green { color: #16a34a; }
+.num-orange { color: #d97706; }
+.num-red { color: #dc2626; }
+.num-blue { color: #2563eb; }
 
-  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.08); }
-  .nav-item.active { color: #fff; background: rgba(255,255,255,0.12); }
-  .nav-icon { font-size: 16px; }
+.table-card { background: #fff; border-radius: 16px; border: 1px solid #f0f0f0; overflow: hidden; }
+.table-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; justify-content: space-between; }
+.table-title { font-size: 15px; font-weight: 600; }
 
-  .sidebar-footer { margin-top: auto; font-size: 12px; color: #555; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: 0.06em; text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; background: #fafafa; }
+td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #f9f9f9; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
 
-  .live-dot {
-    width: 7px; height: 7px;
-    background: #4ade80;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-    display: inline-block;
-    margin-right: 6px;
-  }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+.badge-in     { background: #f0fdf4; color: #166534; }
+.badge-out    { background: #f5f5f5; color: #888; }
+.badge-ontime { background: #f0fdf4; color: #166534; }
+.badge-late   { background: #fef9c3; color: #854d0e; }
 
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.photo-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid #e8e8e8; transition: transform 0.15s; }
+.photo-thumb:hover { transform: scale(1.1); }
+.no-photo { width: 40px; height: 40px; border-radius: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
-  /* Main */
-  .main {
-    margin-left: 220px;
-    padding: 32px 28px;
-    min-height: 100vh;
-  }
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+.modal-bg.show { display: flex; }
+.modal-img { max-width: 90vw; max-height: 85vh; border-radius: 16px; object-fit: contain; }
+.modal-close { position: fixed; top: 20px; right: 24px; background: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  .topbar {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
+.empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; }
 
-  .page-title { font-size: 22px; font-weight: 700; }
-  .page-date { font-size: 13px; color: #888; margin-top: 2px; }
-
-  .topbar-actions { display: flex; align-items: center; gap: 10px; }
-
-  .filter-select {
-    padding: 8px 12px;
-    border: 1.5px solid #e8e8e8;
-    border-radius: 10px;
-    font-size: 13px;
-    font-family: 'Sarabun', sans-serif;
-    background: #fff;
-    color: #1a1a1a;
-    cursor: pointer;
-  }
-
-  .btn {
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-family: 'Sarabun', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1.5px solid #e8e8e8;
-    background: #fff;
-    color: #1a1a1a;
-    transition: opacity 0.15s;
-  }
-
-  .btn:hover { opacity: 0.7; }
-  .btn-dark { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-
-  /* Metric cards */
-  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
-
-  .metric {
-    background: #fff;
-    border-radius: 16px;
-    padding: 18px 20px;
-    border: 1px solid #f0f0f0;
-  }
-
-  .metric-num { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
-  .metric-label { font-size: 13px; color: #888; }
-  .num-green { color: #16a34a; }
-  .num-orange { color: #d97706; }
-  .num-red { color: #dc2626; }
-
-  /* Table card */
-  .table-card {
-    background: #fff;
-    border-radius: 16px;
-    border: 1px solid #f0f0f0;
-    overflow: hidden;
-  }
-
-  .table-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #f5f5f5;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .table-title { font-size: 15px; font-weight: 600; }
-
-  table { width: 100%; border-collapse: collapse; }
-
-  th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    color: #aaa;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 12px 20px;
-    border-bottom: 1px solid #f5f5f5;
-    background: #fafafa;
-  }
-
-  td {
-    padding: 14px 20px;
-    font-size: 14px;
-    border-bottom: 1px solid #f9f9f9;
-    vertical-align: middle;
-  }
-
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #fafafa; }
-
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .badge-in { background: #f0fdf4; color: #166534; }
-  .badge-out { background: #f5f5f5; color: #888; }
-  .badge-late { background: #fef2f2; color: #991b1b; }
-
-  .photo-thumb {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    object-fit: cover;
-    cursor: pointer;
-    border: 1px solid #e8e8e8;
-    transition: transform 0.15s;
-  }
-
-  .photo-thumb:hover { transform: scale(1.1); }
-
-  .no-photo {
-    width: 40px; height: 40px;
-    border-radius: 8px;
-    background: #f5f5f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-  }
-
-  /* Photo modal */
-  .modal-bg {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-bg.show { display: flex; }
-
-  .modal-img {
-    max-width: 90vw;
-    max-height: 85vh;
-    border-radius: 16px;
-    object-fit: contain;
-  }
-
-  .modal-close {
-    position: fixed;
-    top: 20px;
-    right: 24px;
-    background: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 36px; height: 36px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Sarabun', sans-serif;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #bbb;
-  }
-
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-text { font-size: 14px; }
-
-  /* Responsive */
-  @media (max-width: 900px) {
-    .sidebar { display: none; }
-    .main { margin-left: 0; padding: 20px 16px; }
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    th:nth-child(4), td:nth-child(4),
-    th:nth-child(5), td:nth-child(5) { display: none; }
-  }
+@media (max-width: 1100px) { .metrics { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px 16px; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- Sidebar -->
 <nav class="sidebar">
   <div class="sidebar-logo">บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</div>
   <div class="sidebar-sub">ระบบเช็คอินช่าง</div>
-  <button class="nav-item active"><span class="nav-icon">📊</span> Dashboard วันนี้</button>
-  <button class="nav-item" onclick="window.location='#history'"><span class="nav-icon">📅</span> ประวัติย้อนหลัง</button>
-  <button class="nav-item" onclick="copyLinks()"><span class="nav-icon">🔗</span> ลิงค์ช่าง</button>
-  <div class="sidebar-footer">
-    <span class="live-dot"></span>Real-time sync
-  </div>
+  <button class="nav-item active">📊 Dashboard วันนี้</button>
+  <button class="nav-item" onclick="location.href='sites.html'">⚙️ ตั้งค่าไซต์งาน</button>
+  <div class="sidebar-footer"><span class="live-dot"></span>Real-time sync</div>
 </nav>
 
-<!-- Main -->
 <main class="main">
   <div class="topbar">
     <div>
@@ -290,14 +131,17 @@
     <div class="topbar-actions">
       <select class="filter-select" id="filter-site" onchange="renderTable()">
         <option value="all">ทุกไซต์</option>
-        <option value="ตึก A">ตึก A</option>
-        <option value="ตึก B">ตึก B</option>
-        <option value="ตึก C">ตึก C</option>
-        <option value="ตึก D">ตึก D</option>
       </select>
       <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
-      <button class="btn btn-dark" onclick="copyLinks()">🔗 คัดลอกลิงค์</button>
     </div>
+  </div>
+
+  <!-- ตั้งเวลาเริ่มงาน -->
+  <div class="setting-bar">
+    <span class="setting-label">⏰ เวลาเริ่มงาน:</span>
+    <input class="time-input" type="time" id="work-start" value="09:00" />
+    <button class="save-time-btn" onclick="saveWorkTime()">บันทึก</button>
+    <span class="setting-label" id="work-time-display" style="color:#166534;font-weight:600;"></span>
   </div>
 
   <!-- Metrics -->
@@ -315,8 +159,16 @@
       <div class="metric-label">เช็คเอาท์แล้ว</div>
     </div>
     <div class="metric">
+      <div class="metric-num num-green" id="m-ontime">—</div>
+      <div class="metric-label">✅ ตรงเวลา</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num num-red" id="m-late">—</div>
+      <div class="metric-label">⚠️ มาสาย</div>
+    </div>
+    <div class="metric">
       <div class="metric-num num-orange" id="m-hours">—</div>
-      <div class="metric-label">ชม. เฉลี่ยต่อคน</div>
+      <div class="metric-label">ชม. เฉลี่ย</div>
     </div>
   </div>
 
@@ -324,163 +176,186 @@
   <div class="table-card">
     <div class="table-header">
       <div class="table-title">รายการเช็คอิน</div>
-      <div style="font-size:12px;color:#aaa;">อัปเดตอัตโนมัติ</div>
+      <div style="font-size:12px;color:#aaa;"><span class="live-dot"></span>อัปเดตอัตโนมัติ</div>
     </div>
     <div id="table-wrap">
-      <div class="empty-state">
-        <div class="empty-icon">⏳</div>
-        <div class="empty-text">กำลังโหลดข้อมูล...</div>
-      </div>
+      <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">กำลังโหลด...</div></div>
     </div>
   </div>
 </main>
 
-<!-- Photo modal -->
 <div class="modal-bg" id="photo-modal" onclick="closeModal()">
   <button class="modal-close" onclick="closeModal()">✕</button>
   <img class="modal-img" id="modal-img" src="" alt="รูปหน้างาน" />
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  // ===== CONFIG — ใส่ค่าเดียวกับ checkin.html =====
-  const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyDWyYUy2bMQr339i1rJw1CvvTZb2L9L1VI",
-    authDomain: "jm-checkin.firebaseapp.com",
-    databaseURL: "https://jm-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "jm-checkin",
-    storageBucket: "jm-checkin.firebasestorage.app",
-  };
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDWyYUy2bMQr339i1rJw1CvvTZb2L9L1VI",
+  authDomain: "jm-checkin.firebaseapp.com",
+  databaseURL: "https://jm-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jm-checkin",
+  storageBucket: "jm-checkin.firebasestorage.app",
+};
+const BASE_URL = "https://jmpainting16-alt.github.io/-JM-checkin/checkin.html";
 
-  const BASE_URL = "https://jmpainting16-alt.github.io/-JM-checkin/checkin.html";
-  // ===================================================
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getDatabase(app);
 
-  const app = initializeApp(FIREBASE_CONFIG);
-  const db = getDatabase(app);
+// ── วันที่วันนี้ ───────────────────────────────
+const d = new Date();
+const todayStr = d.toLocaleDateString("th-TH");
+document.getElementById("today-label").textContent =
+  d.toLocaleDateString("th-TH", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
 
-  const d = new Date();
-  const todayStr = d.toLocaleDateString("th-TH");
-  document.getElementById("today-label").textContent =
-    d.toLocaleDateString("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+// ── เวลาเริ่มงาน (โหลดจาก localStorage) ────────
+let workStart = localStorage.getItem("jm_work_start") || "09:00";
+document.getElementById("work-start").value = workStart;
+updateWorkTimeDisplay();
 
-  let allRecords = [];
+window.saveWorkTime = function() {
+  workStart = document.getElementById("work-start").value;
+  localStorage.setItem("jm_work_start", workStart);
+  updateWorkTimeDisplay();
+  renderTable();
+};
 
-  // Real-time listener
-  const checkinsRef = query(ref(db, "checkins"), orderByChild("checkinTs"));
-  onValue(checkinsRef, snap => {
-    allRecords = [];
-    snap.forEach(child => {
-      allRecords.push({ id: child.key, ...child.val() });
-    });
-    // Filter today only
-    allRecords = allRecords.filter(r => r.checkinDate === todayStr);
-    allRecords.reverse();
-    renderTable();
-  });
+function updateWorkTimeDisplay() {
+  document.getElementById("work-time-display").textContent = "เวลาเริ่มงาน: " + workStart + " น.";
+}
 
-  window.renderTable = function() {
-    const filter = document.getElementById("filter-site").value;
-    const filtered = filter === "all" ? allRecords : allRecords.filter(r => r.site === filter);
+function getPunctuality(checkinTime) {
+  if (!checkinTime) return null;
+  const [ch, cm] = checkinTime.split(":").map(Number);
+  const [sh, sm] = workStart.split(":").map(Number);
+  const diff = (ch * 60 + cm) - (sh * 60 + sm);
+  return diff <= 0
+    ? { status: "ontime", diff: 0 }
+    : { status: "late",   diff };
+}
 
-    const inCount = filtered.filter(r => r.status === "in").length;
-    const outCount = filtered.filter(r => r.status === "out").length;
-    document.getElementById("m-total").textContent = filtered.length;
-    document.getElementById("m-in").textContent = inCount;
-    document.getElementById("m-out").textContent = outCount;
+// ── Firebase listener ──────────────────────────
+let allRecords = [];
+let siteSet    = new Set();
 
-    // Avg hours
-    const withHours = filtered.filter(r => r.checkoutTs && r.checkinTs);
-    const avgH = withHours.length
-      ? (withHours.reduce((s, r) => s + (r.checkoutTs - r.checkinTs), 0) / withHours.length / 3600000).toFixed(1)
-      : "—";
-    document.getElementById("m-hours").textContent = avgH;
-
-    const wrap = document.getElementById("table-wrap");
-
-    if (!filtered.length) {
-      wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีข้อมูลเช็คอินวันนี้</div></div>`;
-      return;
+const checkinsRef = query(ref(db, "checkins"), orderByChild("checkinTs"));
+onValue(checkinsRef, snap => {
+  allRecords = [];
+  siteSet    = new Set();
+  snap.forEach(child => {
+    const r = { id: child.key, ...child.val() };
+    if (r.checkinDate === todayStr) {
+      allRecords.push(r);
+      if (r.site) siteSet.add(r.site);
     }
+  });
+  allRecords.reverse();
+  updateSiteFilter();
+  renderTable();
+});
 
-    wrap.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>ชื่อช่าง</th>
-            <th>ไซต์งาน</th>
-            <th>เช็คอิน</th>
-            <th>เช็คเอาท์</th>
-            <th>ชม.</th>
-            <th>GPS</th>
-            <th>รูป</th>
-            <th>สถานะ</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filtered.map(r => {
-            const hours = r.checkoutTs && r.checkinTs
-              ? ((r.checkoutTs - r.checkinTs) / 3600000).toFixed(1) + " ชม."
-              : r.status === "in" ? "กำลังทำงาน" : "—";
-            const badge = r.status === "in"
-              ? `<span class="badge badge-in">ทำงานอยู่</span>`
-              : `<span class="badge badge-out">เช็คเอาท์แล้ว</span>`;
-            const photo = r.photoURL
-              ? `<img class="photo-thumb" src="${r.photoURL}" onclick="openModal('${r.photoURL}')" alt="รูปหน้างาน" />`
-              : `<div class="no-photo">📷</div>`;
-            const gps = r.lat
-              ? `<a href="https://maps.google.com/?q=${r.lat},${r.lng}" target="_blank" style="color:#1a1a1a;font-size:18px;">📍</a>`
-              : "—";
-            return `
-              <tr>
-                <td><strong>${r.name}</strong><br><span style="font-size:12px;color:#aaa;">${r.tel}</span></td>
-                <td>${r.site}<br><span style="font-size:12px;color:#aaa;">${r.siteFloor || ""}</span></td>
-                <td>${r.checkinTime}</td>
-                <td>${r.checkoutTime || "—"}</td>
-                <td style="color:#888;">${hours}</td>
-                <td style="text-align:center;">${gps}</td>
-                <td>${photo}</td>
-                <td>${badge}</td>
-              </tr>
-            `;
-          }).join("")}
-        </tbody>
-      </table>
-    `;
-  };
+function updateSiteFilter() {
+  const sel = document.getElementById("filter-site");
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">ทุกไซต์</option>';
+  siteSet.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s; opt.textContent = s;
+    if (s === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
 
-  window.openModal = function(url) {
-    document.getElementById("modal-img").src = url;
-    document.getElementById("photo-modal").classList.add("show");
-  };
+// ── Render ─────────────────────────────────────
+window.renderTable = function() {
+  const filter   = document.getElementById("filter-site").value;
+  const filtered = filter === "all" ? allRecords : allRecords.filter(r => r.site === filter);
 
-  window.closeModal = function() {
-    document.getElementById("photo-modal").classList.remove("show");
-  };
+  const inCount     = filtered.filter(r => r.status === "in").length;
+  const outCount    = filtered.filter(r => r.status === "out").length;
+  const lateCount   = filtered.filter(r => { const p = getPunctuality(r.checkinTime); return p && p.status === "late"; }).length;
+  const ontimeCount = filtered.filter(r => { const p = getPunctuality(r.checkinTime); return p && p.status === "ontime"; }).length;
+  const withHours   = filtered.filter(r => r.checkoutTs && r.checkinTs);
+  const avgH = withHours.length
+    ? (withHours.reduce((s,r) => s + (r.checkoutTs - r.checkinTs), 0) / withHours.length / 3600000).toFixed(1)
+    : "—";
 
-  window.exportCSV = function() {
-    if (!allRecords.length) { alert("ยังไม่มีข้อมูล"); return; }
-    const header = "ชื่อ,เบอร์,ไซต์,เช็คอิน,เช็คเอาท์,ชั่วโมง,สถานะ,Lat,Lng,รูปภาพ\n";
-    const rows = allRecords.map(r => {
-      const hours = r.checkoutTs && r.checkinTs ? ((r.checkoutTs - r.checkinTs)/3600000).toFixed(2) : "";
-      return `${r.name},${r.tel},${r.site},${r.checkinTime},${r.checkoutTime||""},${hours},${r.status},${r.lat||""},${r.lng||""},${r.photoURL||""}`;
-    }).join("\n");
-    const blob = new Blob(["\uFEFF" + header + rows], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `checkin_${new Date().toLocaleDateString("th-TH").replace(/\//g,"-")}.csv`;
-    a.click();
-  };
+  document.getElementById("m-total").textContent  = filtered.length;
+  document.getElementById("m-in").textContent     = inCount;
+  document.getElementById("m-out").textContent    = outCount;
+  document.getElementById("m-ontime").textContent = ontimeCount;
+  document.getElementById("m-late").textContent   = lateCount;
+  document.getElementById("m-hours").textContent  = avgH;
 
-  window.copyLinks = function() {
-    const sites = ["A","B","C","D"];
-    const links = sites.map(s => `ตึก ${s}: ${BASE_URL}?site=${s}`).join("\n");
-    navigator.clipboard.writeText(links).then(() => {
-      alert("คัดลอกลิงค์ทั้งหมดแล้ว!\n\n" + links);
-    });
-  };
+  const wrap = document.getElementById("table-wrap");
+  if (!filtered.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีข้อมูลเช็คอินวันนี้</div></div>`;
+    return;
+  }
+
+  const rows = filtered.map(r => {
+    const p      = getPunctuality(r.checkinTime);
+    const pBadge = p
+      ? p.status === "ontime"
+        ? `<span class="badge badge-ontime">✅ ตรงเวลา</span>`
+        : `<span class="badge badge-late">⚠️ สาย ${p.diff} นาที</span>`
+      : "—";
+    const hours = r.checkoutTs && r.checkinTs
+      ? ((r.checkoutTs - r.checkinTs) / 3600000).toFixed(1) + " ชม."
+      : r.status === "in" ? "<span style='color:#888;font-size:12px;'>กำลังทำงาน</span>" : "—";
+    const wBadge = r.status === "in"
+      ? `<span class="badge badge-in">ทำงานอยู่</span>`
+      : `<span class="badge badge-out">เช็คเอาท์แล้ว</span>`;
+    const photo = r.photoURL
+      ? `<img class="photo-thumb" src="${r.photoURL}" onclick="openModal('${r.photoURL}')" alt="รูป" />`
+      : `<div class="no-photo">📷</div>`;
+    const gps = r.lat
+      ? `<a href="https://maps.google.com/?q=${r.lat},${r.lng}" target="_blank" style="font-size:18px;">📍</a>`
+      : "—";
+    return `<tr>
+      <td><strong>${r.name}</strong><br><span style="font-size:12px;color:#aaa;">${r.tel}</span></td>
+      <td>${r.site}<br><span style="font-size:12px;color:#aaa;">${r.siteFloor||""}</span></td>
+      <td style="font-weight:600;">${r.checkinTime}</td>
+      <td>${pBadge}</td>
+      <td>${r.checkoutTime||"—"}</td>
+      <td style="color:#888;">${hours}</td>
+      <td style="text-align:center;">${gps}</td>
+      <td>${photo}</td>
+      <td>${wBadge}</td>
+    </tr>`;
+  }).join("");
+
+  wrap.innerHTML = `<table>
+    <thead><tr>
+      <th>ชื่อช่าง</th><th>ไซต์งาน</th>
+      <th>เช็คอิน</th><th>เวลางาน</th>
+      <th>เช็คเอาท์</th><th>ชม.</th>
+      <th>GPS</th><th>รูป</th><th>สถานะ</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+};
+
+window.openModal  = url => { document.getElementById("modal-img").src = url; document.getElementById("photo-modal").classList.add("show"); };
+window.closeModal = ()  => { document.getElementById("photo-modal").classList.remove("show"); };
+
+window.exportCSV = function() {
+  if (!allRecords.length) { alert("ยังไม่มีข้อมูล"); return; }
+  const header = "ชื่อ,เบอร์,ไซต์,เช็คอิน,เวลางาน,เช็คเอาท์,ชั่วโมง,สถานะ,Lat,Lng,รูปภาพ\n";
+  const rows = allRecords.map(r => {
+    const p = getPunctuality(r.checkinTime);
+    const pLabel = p ? (p.status === "ontime" ? "ตรงเวลา" : `สาย ${p.diff} นาที`) : "";
+    const hours = r.checkoutTs && r.checkinTs ? ((r.checkoutTs - r.checkinTs)/3600000).toFixed(2) : "";
+    return `${r.name},${r.tel},${r.site},${r.checkinTime},${pLabel},${r.checkoutTime||""},${hours},${r.status},${r.lat||""},${r.lng||""},${r.photoURL||""}`;
+  }).join("\n");
+  const blob = new Blob(["\uFEFF"+header+rows], {type:"text/csv;charset=utf-8"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = `checkin_${todayStr.replace(/\//g,"-")}.csv`; a.click();
+};
 </script>
 </body>
 </html>

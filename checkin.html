@@ -96,6 +96,14 @@
   }
 
   .input-group input:focus { border-color: #1a1a1a; background: #fff; }
+  .input-group select {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid #e8e8e8; border-radius: 12px;
+    font-size: 15px; font-family: 'Sarabun', sans-serif;
+    color: #1a1a1a; background: #fafafa; outline: none;
+    appearance: none; cursor: pointer;
+  }
+  .input-group select:focus { border-color: #1a1a1a; background: #fff; }
 
   /* Site selector */
   .site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -342,13 +350,16 @@
   <div class="card">
     <div class="section-label">ข้อมูลช่าง</div>
     <div class="input-group">
-      <label>ชื่อ-นามสกุล *</label>
-      <input type="text" id="name" placeholder="เช่น สมชาย ใจดี" autocomplete="name" />
+      <label>เลือกชื่อ *</label>
+      <select id="name-select" onchange="onSelectMember(this.value)">
+        <option value="">-- กำลังโหลดรายชื่อ --</option>
+      </select>
     </div>
-    <div class="input-group">
-      <label>เบอร์โทรศัพท์ *</label>
-      <input type="tel" id="tel" placeholder="08x-xxx-xxxx" autocomplete="tel" />
+    <div id="tel-wrap" class="input-group" style="display:none;">
+      <label>เบอร์โทรศัพท์</label>
+      <input type="tel" id="tel" placeholder="08x-xxx-xxxx" autocomplete="tel" readonly style="background:#f5f5f5;color:#888;" />
     </div>
+    <input type="hidden" id="name" />
   </div>
 
   <!-- เลือกไซต์งาน -->
@@ -421,12 +432,6 @@
   const LINE_NOTIFY_TOKEN = "YOUR_LINE_NOTIFY_TOKEN"; // Token จาก notify.line.me
   const LINE_PROXY = "https://YOUR_WORKER.workers.dev/notify";
 
-  const SITES = [
-    { id: "A", name: "ตึก A", floor: "ชั้น 5–8", lat: 13.8800, lng: 100.6600, radius: 150 },
-    { id: "B", name: "ตึก B", floor: "ชั้น 1–4", lat: 13.8810, lng: 100.6610, radius: 150 },
-    { id: "C", name: "ตึก C", floor: "ล็อบบี้", lat: 13.8820, lng: 100.6590, radius: 100 },
-    { id: "D", name: "ตึก D", floor: "ชั้น 9–12", lat: 13.8830, lng: 100.6600, radius: 150 },
-  ];
   // ========================================================
 
   const app = initializeApp(FIREBASE_CONFIG);
@@ -434,31 +439,92 @@
   const storage = getStorage(app);
 
   // State
+  let SITES = [];
+  let MEMBERS = [];
   let selectedSite = null;
+  let selectedMember = null;
   let gpsOK = false;
   let photoData = null;
   let userCoords = null;
   let currentRecordId = null;
+
+  // ── โหลดรายชื่อทีมงานจาก Firebase ──
+  onValue(ref(db, "members"), snap => {
+    MEMBERS = [];
+    snap.forEach(child => {
+      const m = child.val();
+      if (m.status !== "inactive") MEMBERS.push({ key: child.key, ...m });
+    });
+    const sel = document.getElementById("name-select");
+    sel.innerHTML = '<option value="">-- เลือกชื่อทีมงาน --</option>';
+    MEMBERS.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.key;
+      opt.textContent = m.name + (m.position ? ' (' + m.position + ')' : '');
+      sel.appendChild(opt);
+    });
+  });
+
+  window.onSelectMember = function(key) {
+    selectedMember = MEMBERS.find(m => m.key === key) || null;
+    document.getElementById("name").value = selectedMember ? selectedMember.name : "";
+    if (selectedMember && selectedMember.tel) {
+      document.getElementById("tel").value = selectedMember.tel;
+      document.getElementById("tel-wrap").style.display = "block";
+    } else {
+      document.getElementById("tel").value = "";
+      document.getElementById("tel-wrap").style.display = "none";
+    }
+    checkReady();
+  };
 
   // Date header
   const d = new Date();
   document.getElementById("today-label").textContent =
     d.toLocaleDateString("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
-  // Build site grid
+  // ── โหลดไซต์งานจาก Firebase ──
   const grid = document.getElementById("site-grid");
-  SITES.forEach(s => {
-    const el = document.createElement("div");
-    el.className = "site-option";
-    el.id = "site-" + s.id;
-    el.innerHTML = `<div class="site-icon">🏗️</div><div class="site-name">${s.name}</div><div class="site-floor">${s.floor}</div>`;
-    el.onclick = () => {
-      document.querySelectorAll(".site-option").forEach(x => x.classList.remove("selected"));
-      el.classList.add("selected");
-      selectedSite = s;
-      checkReady();
-    };
-    grid.appendChild(el);
+  const siteParam = new URLSearchParams(location.search).get("site");
+  grid.innerHTML = `<div style="color:#aaa;font-size:13px;padding:8px;">กำลังโหลดไซต์งาน...</div>`;
+
+  onValue(ref(db, "sites"), snap => {
+    SITES = [];
+    snap.forEach(child => {
+      const s = child.val();
+      if (s.status !== "inactive") {
+        SITES.push({ key: child.key, id: s.siteId || child.key, name: s.name, floor: s.floor || "", lat: s.lat, lng: s.lng, radius: s.radius || 150 });
+      }
+    });
+
+    grid.innerHTML = "";
+    if (!SITES.length) {
+      grid.innerHTML = `<div style="color:#888;font-size:13px;padding:12px;">ยังไม่มีไซต์งาน กรุณาตั้งค่าใน sites.html ก่อน</div>`;
+      return;
+    }
+
+    SITES.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "site-option";
+      el.id = "site-key-" + s.key;
+      el.innerHTML = `<div class="site-icon">🏗️</div><div class="site-name">${s.name}</div><div class="site-floor">${s.floor}</div>`;
+      el.onclick = () => {
+        document.querySelectorAll(".site-option").forEach(x => x.classList.remove("selected"));
+        el.classList.add("selected");
+        selectedSite = s;
+        gpsOK = false;
+        document.getElementById("gps-strip").className = "gps-strip";
+        document.getElementById("gps-text").textContent = "กดปุ่มเพื่อตรวจสอบตำแหน่งของคุณ";
+        document.getElementById("gps-btn").disabled = false;
+        checkReady();
+      };
+      grid.appendChild(el);
+    });
+
+    if (siteParam) {
+      const found = SITES.find(s => s.id && s.id.toUpperCase() === siteParam.toUpperCase());
+      if (found) document.getElementById("site-key-" + found.key)?.click();
+    }
   });
 
   // GPS
@@ -547,13 +613,9 @@
 
   function checkReady() {
     const name = document.getElementById("name").value.trim();
-    const tel = document.getElementById("tel").value.trim();
-    const ok = name && tel && selectedSite && gpsOK && photoData;
+    const ok = name && selectedSite && gpsOK && photoData;
     document.getElementById("submit-btn").disabled = !ok;
   }
-
-  document.getElementById("name").addEventListener("input", checkReady);
-  document.getElementById("tel").addEventListener("input", checkReady);
 
   // Submit check-in
   window.submitCheckin = async function() {
@@ -681,17 +743,7 @@
     setTimeout(() => t.classList.remove("show"), 3000);
   }
 
-  // URL param: ?site=A จะ auto-select ไซต์
-  const params = new URLSearchParams(location.search);
-  const siteParam = params.get("site");
-  if (siteParam) {
-    const found = SITES.find(s => s.id === siteParam.toUpperCase());
-    if (found) {
-      setTimeout(() => {
-        document.getElementById("site-" + found.id)?.click();
-      }, 300);
-    }
-  }
+  // Auto-select ไซต์จาก URL จัดการใน onValue แล้ว
 </script>
 </body>
 </html>
