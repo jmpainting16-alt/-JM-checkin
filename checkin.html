@@ -336,26 +336,17 @@ function submitCheckin() {
   var timeStr = now.toLocaleTimeString("th-TH", { hour:"2-digit", minute:"2-digit" });
   var dateStr = now.toLocaleDateString("th-TH");
 
-  showOverlay("กำลังอัปโหลดรูป...");
+  showOverlay("กำลังบันทึกข้อมูล...");
 
-  // อัปโหลดรูปผ่าน Imgur (ฟรี)
-  var base64Data = photoData.split(",")[1];
-  fetch("https://api.imgur.com/3/image", {
-    method: "POST",
-    headers: { "Authorization": "Client-ID 546c25a59c58ad7", "Content-Type": "application/json" },
-    body: JSON.stringify({ image: base64Data, type: "base64" })
-  })
-  .then(function(res) { return res.json(); })
-  .then(function(data) {
-    var photoURL = (data.data && data.data.link) ? data.data.link : "";
-    setOverlayText("กำลังบันทึกข้อมูล...");
-    return db.ref("checkins").push({
-      name: name, tel: tel,
-      site: selectedSite.name, siteFloor: selectedSite.floor || "",
-      checkinTime: timeStr, checkinDate: dateStr, checkinTs: now.getTime(),
-      lat: userCoords.lat, lng: userCoords.lng,
-      photoURL: photoURL, status: "in",
-    });
+  // บันทึกรูปเป็น base64 ลง Firebase Database โดยตรง (ไม่ต้องใช้ Storage)
+  db.ref("checkins").push({
+    name: name, tel: tel,
+    site: selectedSite.name, siteFloor: selectedSite.floor || "",
+    checkinTime: timeStr, checkinDate: dateStr, checkinTs: now.getTime(),
+    lat: userCoords.lat, lng: userCoords.lng,
+    photoData: photoData,
+    photoURL: "",
+    status: "in",
   })
   .then(function(newRef) {
     currentRecordId = newRef.key;

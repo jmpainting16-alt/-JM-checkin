@@ -309,9 +309,9 @@ window.renderTable = function() {
     const wBadge = r.status === "in"
       ? `<span class="badge badge-in">ทำงานอยู่</span>`
       : `<span class="badge badge-out">เช็คเอาท์แล้ว</span>`;
-    const photo = r.photoURL
-      ? `<img class="photo-thumb" src="${r.photoURL}" onclick="openModal('${r.photoURL}')" alt="รูป" />`
-      : `<div class="no-photo">📷</div>`;
+    const imgSrc = r.photoData || r.photoURL || "";
+            const photo = imgSrc
+              ? `<img class="photo-thumb" src="${imgSrc}" onclick="openModal('${imgSrc}')" alt="รูป" />`
     const gps = r.lat
       ? `<a href="https://maps.google.com/?q=${r.lat},${r.lng}" target="_blank" style="font-size:18px;">📍</a>`
       : "—";
