@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>เช็คอินช่าง — บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: #F5F4F0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 40px; color: #1a1a1a; }
+.header { text-align: center; margin-bottom: 24px; }
+.logo-badge { display: inline-flex; align-items: center; gap: 8px; background: #1a1a1a; color: #fff; padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+.logo-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.subtitle { font-size: 14px; color: #888; }
+
+.card { background: #fff; border-radius: 20px; padding: 24px 20px; width: 100%; max-width: 400px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); margin-bottom: 12px; }
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #999; text-transform: uppercase; margin-bottom: 12px; }
+.input-group { margin-bottom: 14px; }
+.input-group label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 500; }
+.input-group input, .input-group select { width: 100%; padding: 12px 14px; border: 1.5px solid #e8e8e8; border-radius: 12px; font-size: 15px; font-family: 'Sarabun', sans-serif; color: #1a1a1a; background: #fafafa; outline: none; appearance: none; }
+.input-group input:focus, .input-group select:focus { border-color: #1a1a1a; background: #fff; }
+
+.site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.site-option { border: 1.5px solid #e8e8e8; border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fafafa; }
+.site-option:hover { border-color: #ccc; }
+.site-option.selected { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+.site-option.selected .site-floor { color: #aaa; }
+.site-icon { font-size: 20px; margin-bottom: 4px; }
+.site-name { font-size: 12px; font-weight: 600; }
+.site-floor { font-size: 11px; color: #999; margin-top: 2px; }
+
+.gps-strip { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #e8e8e8; background: #fafafa; font-size: 13px; color: #888; }
+.gps-strip.ok { border-color: #86efac; background: #f0fdf4; color: #166534; }
+.gps-strip.error { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+.gps-strip.checking { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+.gps-icon { font-size: 18px; flex-shrink: 0; }
+.gps-btn { margin-left: auto; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-family: 'Sarabun', sans-serif; cursor: pointer; flex-shrink: 0; }
+.gps-btn:disabled { background: #ccc; cursor: default; }
+
+.camera-area { border: 2px dashed #e8e8e8; border-radius: 14px; overflow: hidden; aspect-ratio: 4/3; position: relative; cursor: pointer; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+.camera-placeholder { text-align: center; color: #bbb; pointer-events: none; }
+.camera-placeholder .cam-icon { font-size: 32px; margin-bottom: 8px; }
+.camera-placeholder p { font-size: 13px; }
+#preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+.retake-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-family: 'Sarabun', sans-serif; cursor: pointer; display: none; }
+#camera-input { display: none; }
+
+.submit-btn { width: 100%; max-width: 400px; padding: 16px; background: #1a1a1a; color: #fff; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer; margin-bottom: 12px; }
+.submit-btn:disabled { background: #ccc; cursor: default; }
+
+/* Active sessions list */
+.sessions-wrap { width: 100%; max-width: 400px; margin-bottom: 12px; }
+.session-card { background: #fff; border-radius: 16px; padding: 16px 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 10px; border-left: 4px solid #4ade80; }
+.session-card.done { border-left-color: #d1d5db; }
+.session-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.session-site { font-size: 13px; color: #555; margin-bottom: 8px; }
+.session-times { font-size: 12px; color: #888; margin-bottom: 12px; display: flex; gap: 16px; }
+.session-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+.badge-working { background: #f0fdf4; color: #166534; }
+.badge-done { background: #f5f5f5; color: #888; }
+.checkout-btn { width: 100%; padding: 12px; background: #fff; color: #dc2626; border: 1.5px solid #fca5a5; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer; }
+.new-checkin-btn { width: 100%; max-width: 400px; padding: 14px; background: #fff; color: #1a1a1a; border: 1.5px solid #1a1a1a; border-radius: 16px; font-size: 15px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer; margin-bottom: 12px; display: none; }
+
+.overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.overlay.show { display: flex; }
+.spinner { width: 40px; height: 40px; border: 3px solid #e5e5e5; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.overlay-text { font-size: 15px; color: #555; font-weight: 500; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1a1a; color: #fff; padding: 12px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; transition: transform 0.3s; z-index: 200; white-space: nowrap; pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-badge"><div class="logo-dot"></div>บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</div>
+  <h1>เช็คอินเข้างาน</h1>
+  <p class="subtitle" id="today-label"></p>
+</div>
+
+<!-- Active sessions (โชว์เมื่อเช็คอินแล้ว) -->
+<div class="sessions-wrap" id="sessions-wrap" style="display:none;"></div>
+
+<!-- ปุ่มเช็คอินโครงการใหม่ (โชว์เมื่อมี session แล้ว) -->
+<button class="new-checkin-btn" id="new-checkin-btn" onclick="showForm()">+ เช็คอินโครงการอื่น</button>
+
+<!-- Form เช็คอิน -->
+<div id="main-form">
+  <div class="card">
+    <div class="section-label">ข้อมูลช่าง</div>
+    <div class="input-group">
+      <label>เลือกชื่อ *</label>
+      <select id="name-select" onchange="onSelectMember(this.value)">
+        <option value="">-- กำลังโหลดรายชื่อ --</option>
+      </select>
+    </div>
+    <div id="tel-wrap" class="input-group" style="display:none;">
+      <label>เบอร์โทรศัพท์</label>
+      <input type="tel" id="tel" readonly style="background:#f5f5f5;color:#888;" />
+    </div>
+    <input type="hidden" id="name" />
+  </div>
+
+  <div class="card">
+    <div class="section-label">เลือกไซต์งาน</div>
+    <div class="site-grid" id="site-grid">
+      <div style="color:#aaa;font-size:13px;padding:8px;grid-column:1/-1;">กำลังโหลดไซต์งาน...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">ยืนยันตำแหน่ง GPS</div>
+    <div class="gps-strip" id="gps-strip">
+      <span class="gps-icon">📍</span>
+      <span id="gps-text">กดปุ่มเพื่อตรวจสอบตำแหน่งของคุณ</span>
+      <button class="gps-btn" id="gps-btn" onclick="checkGPS()">ตรวจสอบ</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">ถ่ายรูปหน้างาน *</div>
+    <div class="camera-area" onclick="triggerCamera()">
+      <div class="camera-placeholder" id="cam-placeholder">
+        <div class="cam-icon">📷</div>
+        <p>แตะเพื่อถ่ายรูปหน้างาน</p>
+      </div>
+      <img id="preview-img" alt="รูปหน้างาน" />
+      <button class="retake-btn" id="retake-btn" onclick="retakePhoto(event)">ถ่ายใหม่</button>
+    </div>
+    <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handlePhoto(event)" />
+  </div>
+</div>
+
+<button class="submit-btn" id="submit-btn" onclick="submitCheckin()" disabled>เช็คอินเข้างาน</button>
+
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <div class="overlay-text" id="overlay-text">กำลังบันทึก...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var FIREBASE_CFG = {
+  apiKey: "AIzaSyDWyYUy2bMQr339i1rJw1CvvTZb2L9L1VI",
+  authDomain: "jm-checkin.firebaseapp.com",
+  databaseURL: "https://jm-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jm-checkin",
+  storageBucket: "jm-checkin.firebasestorage.app",
+};
+var LINE_NOTIFY_TOKEN = "YOUR_LINE_NOTIFY_TOKEN";
+var LINE_PROXY = "https://YOUR_WORKER.workers.dev/notify";
+
+firebase.initializeApp(FIREBASE_CFG);
+var db = firebase.database();
+
+var SITES   = [];
+var MEMBERS = [];
+var selectedSite   = null;
+var selectedMember = null;
+var gpsOK      = false;
+var photoData  = null;
+var userCoords = null;
+var siteParam  = new URLSearchParams(location.search).get("site");
+
+// sessions = รายการเช็คอินวันนี้ของคน/โครงการนี้
+// { recordId, name, site, checkinTime, checkoutTime, status }
+var SESSION_KEY = "jm_sessions_v2";
+var todayStr = new Date().toLocaleDateString("th-TH");
+var sessions = [];
+
+document.getElementById("today-label").textContent =
+  new Date().toLocaleDateString("th-TH", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+// ── Firebase Load ────────────────────────
+db.ref("members").on("value", function(snap) {
+  MEMBERS = [];
+  snap.forEach(function(c) {
+    var m = c.val();
+    if (m.status !== "inactive") MEMBERS.push(Object.assign({ key: c.key }, m));
+  });
+  var sel = document.getElementById("name-select");
+  sel.innerHTML = '<option value="">-- เลือกชื่อทีมงาน --</option>';
+  MEMBERS.forEach(function(m) {
+    var opt = document.createElement("option");
+    opt.value = m.key;
+    opt.textContent = m.name + (m.position ? " (" + m.position + ")" : "");
+    sel.appendChild(opt);
+  });
+});
+
+db.ref("sites").on("value", function(snap) {
+  SITES = [];
+  snap.forEach(function(c) {
+    var s = c.val();
+    if (s.status !== "inactive") SITES.push(Object.assign({ key: c.key }, s));
+  });
+  buildSiteGrid();
+});
+
+// ── Load sessions จาก localStorage ──────
+function loadSessions() {
+  try {
+    var raw = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+    sessions = (raw.date === todayStr) ? (raw.sessions || []) : [];
+  } catch(e) { sessions = []; }
+}
+
+function saveSessions() {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ date: todayStr, sessions: sessions }));
+}
+
+// ── ตรวจสอบ sessions ที่ยังค้างอยู่จาก Firebase ──
+function restoreSessions() {
+  loadSessions();
+  if (!sessions.length) { renderSessions(); return; }
+
+  // ตรวจสอบสถานะจาก Firebase
+  var checks = sessions.map(function(s) {
+    return db.ref("checkins/" + s.recordId).once("value").then(function(snap) {
+      var r = snap.val();
+      if (r) { s.status = r.status; s.checkoutTime = r.checkoutTime || null; }
+    });
+  });
+
+  Promise.all(checks).then(function() {
+    saveSessions();
+    renderSessions();
+  });
+}
+
+// ── Render session cards ─────────────────
+function renderSessions() {
+  var wrap = document.getElementById("sessions-wrap");
+  var newBtn = document.getElementById("new-checkin-btn");
+
+  if (!sessions.length) {
+    wrap.style.display = "none";
+    newBtn.style.display = "none";
+    showForm();
+    return;
+  }
+
+  wrap.style.display = "block";
+  newBtn.style.display = "block";
+
+  var hasActive = sessions.some(function(s) { return s.status === "in"; });
+
+  wrap.innerHTML = sessions.map(function(s, i) {
+    var isDone = s.status === "out";
+    return '<div class="session-card ' + (isDone ? "done" : "") + '">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;">' +
+        '<div>' +
+          '<div class="session-name">' + s.name + '</div>' +
+          '<div class="session-site">📍 ' + s.site + (s.siteFloor ? ' · ' + s.siteFloor : '') + '</div>' +
+          '<div class="session-times">' +
+            '<span>🟢 เข้า ' + s.checkinTime + ' น.</span>' +
+            (isDone ? '<span>🔴 ออก ' + (s.checkoutTime||"—") + ' น.</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="session-badge ' + (isDone ? "badge-done" : "badge-working") + '">' +
+          (isDone ? "เสร็จแล้ว" : "กำลังทำงาน") +
+        '</span>' +
+      '</div>' +
+      (!isDone ? '<button class="checkout-btn" onclick="doCheckout(' + i + ')">เช็คเอาท์ออกจาก ' + s.site + '</button>' : '') +
+    '</div>';
+  }).join("");
+
+  // ซ่อน form ถ้ามี session อยู่แล้ว
+  document.getElementById("main-form").style.display = "none";
+  document.getElementById("submit-btn").style.display = "none";
+}
+
+function showForm() {
+  document.getElementById("main-form").style.display = "block";
+  document.getElementById("submit-btn").style.display = "block";
+
+  // ถ้าเคยเลือกชื่อไว้แล้ว ล็อคชื่อเดิม
+  if (sessions.length && sessions[0].name) {
+    var lastName = sessions[0].name;
+    var sel = document.getElementById("name-select");
+    for (var i = 0; i < sel.options.length; i++) {
+      var m = MEMBERS.find(function(m) { return m.key === sel.options[i].value; });
+      if (m && m.name === lastName) {
+        sel.value = sel.options[i].value;
+        onSelectMember(sel.value);
+        sel.disabled = true;
+        break;
+      }
+    }
+  }
+
+  // Reset site, GPS, photo
+  selectedSite = null; gpsOK = false; photoData = null;
+  document.querySelectorAll(".site-option").forEach(function(x) { x.classList.remove("selected"); });
+  document.getElementById("gps-strip").className = "gps-strip";
+  document.getElementById("gps-text").textContent = "กดปุ่มเพื่อตรวจสอบตำแหน่งของคุณ";
+  document.getElementById("gps-btn").disabled = false;
+  document.getElementById("preview-img").style.display = "none";
+  document.getElementById("cam-placeholder").style.display = "block";
+  document.getElementById("retake-btn").style.display = "none";
+  document.getElementById("camera-input").value = "";
+  checkReady();
+}
+
+// ── Checkout ─────────────────────────────
+function doCheckout(idx) {
+  var s = sessions[idx];
+  if (!s || s.status === "out") return;
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString("th-TH", { hour:"2-digit", minute:"2-digit" });
+
+  showOverlay("กำลังบันทึกเช็คเอาท์...");
+  db.ref("checkins/" + s.recordId).update({
+    checkoutTime: timeStr, checkoutTs: now.getTime(), status: "out"
+  }).then(function() {
+    s.status = "out";
+    s.checkoutTime = timeStr;
+    saveSessions();
+    notifyLine("🔴 ช่างเช็คเอาท์\n👷 " + s.name + "\n📍 " + s.site + "\n🕐 " + timeStr + " น.");
+    hideOverlay();
+    renderSessions();
+    showToast("✅ เช็คเอาท์จาก " + s.site + " เรียบร้อย");
+  }).catch(function(e) { hideOverlay(); showToast("❌ " + e.message); });
+}
+
+// ── Site grid ────────────────────────────
+function buildSiteGrid() {
+  var grid = document.getElementById("site-grid");
+  grid.innerHTML = "";
+  if (!SITES.length) {
+    grid.innerHTML = '<div style="color:#aaa;font-size:13px;padding:8px;grid-column:1/-1;">ยังไม่มีไซต์งาน</div>';
+    return;
+  }
+  SITES.forEach(function(s) {
+    var el = document.createElement("div");
+    el.className = "site-option";
+    el.id = "site-key-" + s.key;
+    el.innerHTML = '<div class="site-icon">🏗️</div><div class="site-name">' + s.name + '</div><div class="site-floor">' + (s.floor||"") + '</div>';
+    el.onclick = function() {
+      document.querySelectorAll(".site-option").forEach(function(x){ x.classList.remove("selected"); });
+      el.classList.add("selected");
+      selectedSite = s;
+      gpsOK = false;
+      document.getElementById("gps-strip").className = "gps-strip";
+      document.getElementById("gps-text").textContent = "กดปุ่มเพื่อตรวจสอบตำแหน่งของคุณ";
+      document.getElementById("gps-btn").disabled = false;
+      checkReady();
+    };
+    grid.appendChild(el);
+  });
+  if (siteParam) {
+    var found = SITES.find(function(s){ return s.siteId && s.siteId.toUpperCase() === siteParam.toUpperCase(); });
+    if (found) { var el = document.getElementById("site-key-" + found.key); if (el) el.click(); }
+  }
+
+  // Restore sessions หลังจากโหลดไซต์งานแล้ว
+  restoreSessions();
+}
+
+function onSelectMember(key) {
+  selectedMember = MEMBERS.find(function(m){ return m.key === key; }) || null;
+  document.getElementById("name").value = selectedMember ? selectedMember.name : "";
+  if (selectedMember && selectedMember.tel) {
+    document.getElementById("tel").value = selectedMember.tel;
+    document.getElementById("tel-wrap").style.display = "block";
+  } else {
+    document.getElementById("tel").value = "";
+    document.getElementById("tel-wrap").style.display = "none";
+  }
+  checkReady();
+}
+
+// ── GPS ───────────────────────────────────
+function checkGPS() {
+  var strip = document.getElementById("gps-strip");
+  var txt   = document.getElementById("gps-text");
+  var btn   = document.getElementById("gps-btn");
+  strip.className = "gps-strip checking";
+  txt.textContent = "กำลังดึงตำแหน่ง...";
+  btn.disabled = true;
+  if (!navigator.geolocation) {
+    strip.className = "gps-strip error";
+    txt.textContent = "อุปกรณ์ไม่รองรับ GPS";
+    btn.disabled = false; return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if (!selectedSite) {
+        strip.className = "gps-strip checking";
+        txt.textContent = "พิกัด: " + userCoords.lat.toFixed(5) + ", " + userCoords.lng.toFixed(5) + " — กรุณาเลือกไซต์งาน";
+        btn.disabled = false; gpsOK = false; checkReady(); return;
+      }
+      var dist = getDistance(userCoords.lat, userCoords.lng, selectedSite.lat, selectedSite.lng);
+      if (dist <= (selectedSite.radius || 150)) {
+        gpsOK = true;
+        strip.className = "gps-strip ok";
+        txt.textContent = "✓ อยู่ใน " + selectedSite.name + " (ห่าง " + Math.round(dist) + " ม.)";
+      } else {
+        gpsOK = false;
+        strip.className = "gps-strip error";
+        txt.textContent = "อยู่นอกพื้นที่ (ห่าง " + Math.round(dist) + " ม. จากไซต์)";
+        btn.disabled = false;
+      }
+      checkReady();
+    },
+    function() {
+      document.getElementById("gps-strip").className = "gps-strip error";
+      document.getElementById("gps-text").textContent = "ไม่สามารถดึงตำแหน่งได้ — กรุณาอนุญาต Location";
+      document.getElementById("gps-btn").disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function getDistance(lat1,lon1,lat2,lon2) {
+  var R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ── Camera ────────────────────────────────
+function triggerCamera() { document.getElementById("camera-input").click(); }
+function handlePhoto(e) {
+  var file = e.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement("canvas");
+      var MAX=800, w=img.width, h=img.height;
+      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+      canvas.width=w; canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      photoData = canvas.toDataURL("image/jpeg", 0.7);
+      document.getElementById("preview-img").src = photoData;
+      document.getElementById("preview-img").style.display = "block";
+      document.getElementById("cam-placeholder").style.display = "none";
+      document.getElementById("retake-btn").style.display = "block";
+      checkReady();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function retakePhoto(e) {
+  e.stopPropagation(); photoData = null;
+  document.getElementById("preview-img").style.display = "none";
+  document.getElementById("cam-placeholder").style.display = "block";
+  document.getElementById("retake-btn").style.display = "none";
+  checkReady();
+}
+
+function checkReady() {
+  var name = document.getElementById("name").value.trim();
+  document.getElementById("submit-btn").disabled = !(name && selectedSite && gpsOK && photoData);
+}
+
+// ── Submit Check-in ───────────────────────
+function submitCheckin() {
+  var name = document.getElementById("name").value.trim();
+  var tel  = document.getElementById("tel").value.trim();
+  var now  = new Date();
+  var timeStr = now.toLocaleTimeString("th-TH", { hour:"2-digit", minute:"2-digit" });
+  var dateStr = now.toLocaleDateString("th-TH");
+
+  // ตรวจว่าเช็คอินไซต์เดิมซ้ำหรือเปล่า
+  var duplicate = sessions.find(function(s){ return s.name===name && s.site===selectedSite.name && s.status==="in"; });
+  if (duplicate) { showToast("⚠️ คุณเช็คอินที่ "+selectedSite.name+" แล้ว"); return; }
+
+  showOverlay("กำลังบันทึกข้อมูล...");
+
+  db.ref("checkins").push({
+    name: name, tel: tel,
+    site: selectedSite.name, siteFloor: selectedSite.floor || "",
+    checkinTime: timeStr, checkinDate: dateStr, checkinTs: now.getTime(),
+    lat: userCoords ? userCoords.lat : null,
+    lng: userCoords ? userCoords.lng : null,
+    photoData: photoData, photoURL: "",
+    status: "in",
+  }).then(function(ref) {
+    // บันทึก session ใหม่
+    sessions.push({
+      recordId: ref.key,
+      name: name, site: selectedSite.name,
+      siteFloor: selectedSite.floor || "",
+      checkinTime: timeStr, checkoutTime: null,
+      status: "in",
+    });
+    saveSessions();
+    notifyLine("✅ ช่างเช็คอิน\n👷 "+name+(tel?" ("+tel+")":"")+"\n📍 "+selectedSite.name+"\n🕐 "+timeStr+" น.\n🗓️ "+dateStr);
+    hideOverlay();
+    renderSessions();
+    showToast("✅ เช็คอินที่ " + selectedSite.name + " เรียบร้อย");
+    // ซ่อน form
+    document.getElementById("main-form").style.display = "none";
+    document.getElementById("submit-btn").style.display = "none";
+  }).catch(function(err) { hideOverlay(); showToast("❌ " + err.message); });
+}
+
+function notifyLine(msg) {
+  try { fetch(LINE_PROXY, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({token:LINE_NOTIFY_TOKEN,message:msg}) }); } catch(e){}
+}
+
+function showOverlay(t) { document.getElementById("overlay-text").textContent=t; document.getElementById("overlay").classList.add("show"); }
+function hideOverlay() { document.getElementById("overlay").classList.remove("show"); }
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove("show");},3500);
+}
+</script>
+</body>
+</html>

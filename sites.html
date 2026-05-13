@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตั้งค่าไซต์งาน — บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: #F5F4F0; min-height: 100vh; color: #1a1a1a; }
+
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 220px;
+  background: #1a1a1a; color: #fff; padding: 28px 20px;
+  display: flex; flex-direction: column; z-index: 10;
+}
+.sidebar-logo { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.sidebar-sub { font-size: 12px; color: #666; margin-bottom: 32px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; font-size: 14px;
+  color: #aaa; cursor: pointer; margin-bottom: 4px;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: 'Sarabun', sans-serif; transition: all 0.15s;
+}
+.nav-item:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-item.active { color: #fff; background: rgba(255,255,255,0.13); }
+
+.main { margin-left: 220px; padding: 32px 28px; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.page-title { font-size: 22px; font-weight: 700; }
+.page-sub { font-size: 13px; color: #888; margin-top: 2px; }
+
+.btn {
+  padding: 9px 18px; border-radius: 10px; font-size: 14px;
+  font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer;
+  border: 1.5px solid #e8e8e8; background: #fff; color: #1a1a1a;
+  display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.75; }
+.btn-dark { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.btn-danger { color: #dc2626; border-color: #fca5a5; }
+.btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+
+.banner {
+  display: none; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 10px; border: 1px solid;
+  font-size: 13px; margin-bottom: 20px;
+}
+
+.sites-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px; margin-bottom: 20px;
+}
+.site-card {
+  background: #fff; border-radius: 16px; border: 1.5px solid #f0f0f0;
+  overflow: hidden; transition: box-shadow 0.15s;
+}
+.site-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+.card-map {
+  height: 120px; background: #e8f4f0; display: flex;
+  align-items: center; justify-content: center; cursor: pointer; font-size: 32px;
+}
+.card-body { padding: 16px 18px; }
+.card-name { font-size: 16px; font-weight: 700; }
+.card-floor { font-size: 13px; color: #888; margin: 2px 0 12px; }
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2px; }
+.card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.meta-item { background: #f8f8f6; border-radius: 8px; padding: 8px 10px; }
+.meta-label { font-size: 11px; color: #aaa; margin-bottom: 2px; }
+.meta-val { font-size: 13px; font-weight: 600; }
+.card-actions { display: flex; gap: 8px; }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600;
+}
+.pill-on { background: #f0fdf4; color: #166534; }
+.pill-off { background: #f5f5f5; color: #888; }
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-on { background: #4ade80; }
+.dot-off { background: #ccc; }
+
+.add-card {
+  background: #fff; border-radius: 16px; border: 2px dashed #e0e0e0;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 20px; cursor: pointer;
+  color: #bbb; min-height: 240px; transition: all 0.15s;
+}
+.add-card:hover { border-color: #1a1a1a; color: #1a1a1a; }
+.add-icon { font-size: 32px; margin-bottom: 8px; }
+.add-label { font-size: 14px; font-weight: 500; }
+.empty-msg { grid-column: 1/-1; text-align: center; padding: 50px 20px; color: #bbb; font-size: 14px; }
+
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 100;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 20px;
+  width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 28px;
+}
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; color: #555; font-weight: 500; margin-bottom: 6px; }
+.field input, .field select {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e8e8e8;
+  border-radius: 10px; font-size: 15px; font-family: 'Sarabun', sans-serif;
+  color: #1a1a1a; background: #fafafa; outline: none;
+}
+.field input:focus, .field select:focus { border-color: #1a1a1a; background: #fff; }
+.hint { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+.radius-row { display: flex; align-items: center; gap: 12px; }
+.radius-row input[type=range] { flex: 1; }
+.radius-num { font-size: 15px; font-weight: 700; min-width: 60px; }
+
+.map-preview { border: 1.5px solid #e8e8e8; border-radius: 10px; overflow: hidden; height: 180px; margin-bottom: 6px; }
+.map-preview iframe { width: 100%; height: 100%; border: none; }
+
+.loc-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+.loc-btn {
+  flex: 1; padding: 9px 12px; border-radius: 10px; font-size: 13px;
+  font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer; border: none;
+}
+.loc-btn-map { background: #f5f4f0; color: #1a1a1a; }
+.loc-btn-gps { background: #f0fdf4; color: #166534; }
+
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+.confirm-box {
+  background: #fff; border-radius: 16px; padding: 28px;
+  width: 100%; max-width: 340px; text-align: center;
+}
+.confirm-box h3 { font-size: 17px; margin: 12px 0 8px; }
+.confirm-box p { font-size: 14px; color: #888; margin-bottom: 20px; }
+.confirm-btns { display: flex; gap: 10px; justify-content: center; }
+
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1a1a1a; color: #fff; padding: 12px 22px;
+  border-radius: 100px; font-size: 13px; font-weight: 500;
+  transition: transform 0.3s; z-index: 300; white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px 16px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</div>
+  <div class="sidebar-sub">ระบบเช็คอินช่าง</div>
+  <button class="nav-item" onclick="location.href='dashboard.html'">📊 Dashboard</button>
+  <button class="nav-item active">⚙️ ตั้งค่าไซต์งาน</button>
+  <button class="nav-item" onclick="copyAllLinks()">🔗 ลิงค์ช่าง</button>
+</nav>
+
+<main class="main">
+  <div id="banner" class="banner"></div>
+  <div class="topbar">
+    <div>
+      <div class="page-title">ตั้งค่าไซต์งาน</div>
+      <div class="page-sub">เพิ่ม แก้ไข หรือลบไซต์งาน</div>
+    </div>
+    <button class="btn btn-dark" onclick="openAdd()">+ เพิ่มไซต์งานใหม่</button>
+  </div>
+  <div class="sites-grid" id="grid"></div>
+</main>
+
+<!-- Add/Edit Modal -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">เพิ่มไซต์งานใหม่</div>
+    <div class="form-row">
+      <div class="field">
+        <label>ชื่ออาคาร / ไซต์ *</label>
+        <input id="f-name" type="text" placeholder="เช่น ตึก A" />
+      </div>
+      <div class="field">
+        <label>ชั้น / โซน</label>
+        <input id="f-floor" type="text" placeholder="เช่น ชั้น 5–8" />
+      </div>
+    </div>
+    <div class="field">
+      <label>พิกัดตำแหน่ง *</label>
+      <div class="loc-btns">
+        <button class="loc-btn loc-btn-map" onclick="openMaps()">🗺️ เปิด Google Maps</button>
+        <button class="loc-btn loc-btn-gps" onclick="getGPS()">📍 ตำแหน่งปัจจุบัน</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Latitude *</label>
+        <input id="f-lat" type="number" placeholder="13.88123" step="0.00001" oninput="previewMap()" />
+        <div class="hint">ตัวเลขแรกจาก Google Maps</div>
+      </div>
+      <div class="field">
+        <label>Longitude *</label>
+        <input id="f-lng" type="number" placeholder="100.66045" step="0.00001" oninput="previewMap()" />
+        <div class="hint">ตัวเลขสองจาก Google Maps</div>
+      </div>
+    </div>
+    <div id="map-wrap" style="display:none;" class="field">
+      <label>ตัวอย่างตำแหน่ง</label>
+      <div class="map-preview"><iframe id="map-frame" src="" title="แผนที่"></iframe></div>
+    </div>
+    <div class="field">
+      <label>รัศมีเช็คอิน *</label>
+      <div class="radius-row">
+        <input id="f-radius" type="range" min="50" max="500" step="10" value="150"
+          oninput="document.getElementById('radius-val').textContent = this.value + ' ม.'" />
+        <span class="radius-num" id="radius-val">150 ม.</span>
+      </div>
+      <div class="hint">แนะนำ 100–150 ม. สำหรับอาคารเดี่ยว</div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>รหัสไซต์ (URL)</label>
+        <input id="f-sid" type="text" placeholder="เช่น A หรือ LOBBY" maxlength="10" />
+        <div class="hint">ใช้ใน ?site=A</div>
+      </div>
+      <div class="field">
+        <label>สถานะ</label>
+        <select id="f-status">
+          <option value="active">เปิดใช้งาน</option>
+          <option value="inactive">ปิดชั่วคราว</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeEdit()">ยกเลิก</button>
+      <button class="btn btn-dark" onclick="saveSite()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="modal-bg" id="del-modal">
+  <div class="confirm-box">
+    <div style="font-size:36px;">🗑️</div>
+    <h3>ลบไซต์งานนี้?</h3>
+    <p id="del-msg">ไม่สามารถกู้คืนได้</p>
+    <div class="confirm-btns">
+      <button class="btn" onclick="closeDel()">ยกเลิก</button>
+      <button class="btn btn-danger" onclick="doDelete()">ลบ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+var FIREBASE_CFG = {
+  apiKey: "AIzaSyDWyYUy2bMQr339i1rJw1CvvTZb2L9L1VI",
+  authDomain: "jm-checkin.firebaseapp.com",
+  databaseURL: "https://jm-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jm-checkin",
+  storageBucket: "jm-checkin.firebasestorage.app",
+};
+var BASE_URL = "https://jmpainting16-alt.github.io/-JM-checkin/checkin.html";
+// ────────────────────────────────────────────────────────
+
+var LS_KEY = "saimai_sites_v2";
+var sites  = {};
+var editKey = null;
+var delKey  = null;
+var fbDb    = null;
+var fbFns   = null;
+
+// ── Boot ─────────────────────────────────────────────────
+loadLocal();
+render();
+tryFirebase();
+
+function loadLocal() {
+  try { sites = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }
+  catch(e) { sites = {}; }
+}
+
+function saveLocal() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(sites)); } catch(e){}
+}
+
+function tryFirebase() {
+  if (!FIREBASE_CFG.apiKey || !FIREBASE_CFG.databaseURL) {
+    setBanner("local"); return;
+  }
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js")
+    .then(function(m) { return m; })
+    .then(function(appMod) {
+      return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js")
+        .then(function(dbMod) {
+          var app = appMod.initializeApp(FIREBASE_CFG);
+          fbDb  = dbMod.getDatabase(app);
+          fbFns = dbMod;
+          dbMod.onValue(dbMod.ref(fbDb, "sites"), function(snap) {
+            sites = {};
+            snap.forEach(function(c) { sites[c.key] = c.val(); });
+            saveLocal(); render();
+          });
+          setBanner("firebase");
+        });
+    })
+    .catch(function(e) { console.warn("Firebase:", e.message); setBanner("local"); });
+}
+
+function setBanner(mode) {
+  var el = document.getElementById("banner");
+  if (mode === "firebase") {
+    el.style.cssText = "display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;border:1px solid #86efac;background:#f0fdf4;color:#166534;font-size:13px;margin-bottom:20px;";
+    el.textContent = "🟢 เชื่อมต่อ Firebase — ซิงค์ real-time";
+  } else {
+    el.style.cssText = "display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:13px;margin-bottom:20px;";
+    el.textContent = "🟡 บันทึกในเครื่อง (Local) — ใส่ Firebase Config เพื่อซิงค์ข้ามอุปกรณ์";
+  }
+}
+
+// ── Render ────────────────────────────────────────────────
+function render() {
+  var grid = document.getElementById("grid");
+  var keys = Object.keys(sites);
+  if (!keys.length) {
+    grid.innerHTML =
+      '<div class="empty-msg">ยังไม่มีไซต์งาน — กดปุ่ม "เพิ่มไซต์งานใหม่"</div>' +
+      '<div class="add-card" onclick="openAdd()"><div class="add-icon">＋</div><div class="add-label">เพิ่มไซต์งานใหม่</div></div>';
+    return;
+  }
+  var html = keys.map(function(k) {
+    var s  = sites[k];
+    var on = s.status !== "inactive";
+    var hasCoords = s.lat && s.lng;
+    var mapUrl = hasCoords ? "https://maps.google.com/?q=" + s.lat + "," + s.lng : "#";
+    return '<div class="site-card">' +
+      '<div class="card-map" style="' + (hasCoords ? 'background:#e8f4f0;' : 'background:#f5f4f0;') + '" ' +
+        (hasCoords ? 'onclick="window.open(\'' + mapUrl + '\',\'_blank\')" title="ดูใน Google Maps"' : '') + '>' +
+        (hasCoords ? '📍' : '❓') +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-head">' +
+          '<div class="card-name">' + esc(s.name) + '</div>' +
+          '<span class="status-pill ' + (on ? 'pill-on' : 'pill-off') + '">' +
+            '<span class="pill-dot ' + (on ? 'dot-on' : 'dot-off') + '"></span>' +
+            (on ? 'เปิด' : 'ปิด') +
+          '</span>' +
+        '</div>' +
+        '<div class="card-floor">' + esc(s.floor || '—') + (s.siteId ? ' · ?site=' + esc(s.siteId) : '') + '</div>' +
+        '<div class="card-meta">' +
+          '<div class="meta-item"><div class="meta-label">Latitude</div><div class="meta-val">' + (s.lat ? Number(s.lat).toFixed(5) : '—') + '</div></div>' +
+          '<div class="meta-item"><div class="meta-label">Longitude</div><div class="meta-val">' + (s.lng ? Number(s.lng).toFixed(5) : '—') + '</div></div>' +
+          '<div class="meta-item"><div class="meta-label">รัศมี</div><div class="meta-val">' + (s.radius || 150) + ' ม.</div></div>' +
+          '<div class="meta-item"><div class="meta-label">ลิงค์</div>' +
+            '<div class="meta-val" style="cursor:pointer;color:#1976d2;font-size:12px;" onclick="copyLink(\'' + esc(s.siteId) + '\')">คัดลอก 🔗</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-actions">' +
+          '<button class="btn btn-sm" style="flex:1;" onclick="openEdit(\'' + k + '\')">✏️ แก้ไข</button>' +
+          '<button class="btn btn-sm btn-danger" onclick="askDel(\'' + k + '\',\'' + esc(s.name) + '\')">🗑️</button>' +
+          '<button class="btn btn-sm" onclick="toggleStatus(\'' + k + '\')">' + (on ? '⏸️ ปิด' : '▶️ เปิด') + '</button>' +
+        '</div>' +
+      '</div></div>';
+  }).join("");
+  grid.innerHTML = html +
+    '<div class="add-card" onclick="openAdd()"><div class="add-icon">＋</div><div class="add-label">เพิ่มไซต์งานใหม่</div></div>';
+}
+
+function esc(s) {
+  return String(s || '').replace(/['"<>&]/g, function(c) {
+    return {'\'':'&#39;','"':'&quot;','<':'&lt;','>':'&gt;','&':'&amp;'}[c];
+  });
+}
+
+// ── Modal ─────────────────────────────────────────────────
+function resetForm() {
+  ["f-name","f-floor","f-lat","f-lng","f-sid"].forEach(function(id) {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("f-radius").value = 150;
+  document.getElementById("radius-val").textContent = "150 ม.";
+  document.getElementById("f-status").value = "active";
+  document.getElementById("map-wrap").style.display = "none";
+  document.getElementById("map-frame").src = "";
+}
+
+function openAdd() {
+  editKey = null;
+  document.getElementById("modal-title").textContent = "เพิ่มไซต์งานใหม่";
+  resetForm();
+  document.getElementById("edit-modal").classList.add("open");
+}
+
+function openEdit(k) {
+  editKey = k;
+  var s = sites[k];
+  if (!s) { toast("❌ ไม่พบข้อมูลไซต์"); return; }
+  document.getElementById("modal-title").textContent = "แก้ไข " + s.name;
+  document.getElementById("f-name").value  = s.name  || "";
+  document.getElementById("f-floor").value = s.floor || "";
+  document.getElementById("f-lat").value   = s.lat   || "";
+  document.getElementById("f-lng").value   = s.lng   || "";
+  document.getElementById("f-radius").value = s.radius || 150;
+  document.getElementById("radius-val").textContent = (s.radius || 150) + " ม.";
+  document.getElementById("f-sid").value    = s.siteId || "";
+  document.getElementById("f-status").value = s.status || "active";
+  if (s.lat && s.lng) previewMap();
+  document.getElementById("edit-modal").classList.add("open");
+}
+
+function closeEdit() { document.getElementById("edit-modal").classList.remove("open"); }
+
+function previewMap() {
+  var lat = parseFloat(document.getElementById("f-lat").value);
+  var lng = parseFloat(document.getElementById("f-lng").value);
+  if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
+  document.getElementById("map-frame").src = "https://maps.google.com/maps?q=" + lat + "," + lng + "&z=17&output=embed";
+  document.getElementById("map-wrap").style.display = "block";
+}
+
+function openMaps() {
+  window.open("https://maps.google.com", "_blank");
+  toast("กดค้างที่หน้างาน → จะเห็นพิกัด → ใส่ในช่อง Lat / Lng");
+}
+
+function getGPS() {
+  if (!navigator.geolocation) { toast("อุปกรณ์ไม่รองรับ GPS"); return; }
+  toast("กำลังดึงตำแหน่ง...");
+  navigator.geolocation.getCurrentPosition(
+    function(p) {
+      document.getElementById("f-lat").value = p.coords.latitude.toFixed(6);
+      document.getElementById("f-lng").value = p.coords.longitude.toFixed(6);
+      previewMap();
+      toast("✓ ดึงตำแหน่งสำเร็จ");
+    },
+    function() { toast("❌ ไม่สามารถดึงตำแหน่งได้ — กรุณาอนุญาต Location"); }
+  );
+}
+
+// ── Save ──────────────────────────────────────────────────
+function saveSite() {
+  var name   = document.getElementById("f-name").value.trim();
+  var latStr = document.getElementById("f-lat").value.trim();
+  var lngStr = document.getElementById("f-lng").value.trim();
+
+  if (!name)           { toast("⚠️ กรุณากรอกชื่อไซต์");          return; }
+  if (!latStr)         { toast("⚠️ กรุณากรอก Latitude");           return; }
+  if (!lngStr)         { toast("⚠️ กรุณากรอก Longitude");          return; }
+
+  var lat = parseFloat(latStr);
+  var lng = parseFloat(lngStr);
+
+  if (isNaN(lat) || isNaN(lng)) { toast("⚠️ พิกัดต้องเป็นตัวเลข"); return; }
+  if (lat < 5 || lat > 21 || lng < 97 || lng > 106) {
+    toast("⚠️ พิกัดไม่อยู่ในไทย — ตรวจสอบ Lat/Lng"); return;
+  }
+
+  var sidInput = document.getElementById("f-sid").value.trim().toUpperCase();
+  var data = {
+    name:      name,
+    floor:     document.getElementById("f-floor").value.trim(),
+    lat:       lat,
+    lng:       lng,
+    radius:    parseInt(document.getElementById("f-radius").value) || 150,
+    siteId:    (sidInput || name.replace(/\s+/g, "")).slice(0, 10),
+    status:    document.getElementById("f-status").value,
+    updatedAt: Date.now(),
+  };
+
+  // Firebase
+  if (fbDb && fbFns) {
+    var promise = editKey
+      ? fbFns.update(fbFns.ref(fbDb, "sites/" + editKey), data)
+      : fbFns.push(fbFns.ref(fbDb, "sites"), Object.assign({ createdAt: Date.now() }, data));
+    promise
+      .then(function() { toast(editKey ? "✓ บันทึกแล้ว" : "✓ เพิ่มไซต์งานใหม่แล้ว"); closeEdit(); })
+      .catch(function(e) { toast("❌ Firebase: " + e.message); });
+    return;
+  }
+
+  // Local
+  var k = editKey || ("s_" + Date.now());
+  if (editKey) {
+    sites[k] = Object.assign({}, sites[k], data);
+  } else {
+    sites[k] = Object.assign({ createdAt: Date.now() }, data);
+  }
+  saveLocal();
+  render();
+  toast(editKey ? "✓ บันทึกแล้ว" : "✓ เพิ่มไซต์งานใหม่แล้ว");
+  closeEdit();
+}
+
+// ── Toggle / Delete ───────────────────────────────────────
+function toggleStatus(k) {
+  var newStatus = sites[k].status === "inactive" ? "active" : "inactive";
+  if (fbDb && fbFns) {
+    var upd = {}; upd.status = newStatus;
+    fbFns.update(fbFns.ref(fbDb, "sites/" + k), upd).catch(function(e) { toast("❌ " + e.message); });
+  } else {
+    sites[k].status = newStatus; saveLocal(); render();
+  }
+  toast(newStatus === "active" ? "✓ เปิดใช้งานแล้ว" : "✓ ปิดชั่วคราวแล้ว");
+}
+
+function askDel(k, name) {
+  delKey = k;
+  document.getElementById("del-msg").textContent = 'ลบ "' + name + '" — ไม่สามารถกู้คืนได้';
+  document.getElementById("del-modal").classList.add("open");
+}
+function closeDel() { document.getElementById("del-modal").classList.remove("open"); delKey = null; }
+
+function doDelete() {
+  if (!delKey) return;
+  if (fbDb && fbFns) {
+    fbFns.remove(fbFns.ref(fbDb, "sites/" + delKey))
+      .then(function() { toast("🗑️ ลบแล้ว"); closeDel(); })
+      .catch(function(e) { toast("❌ " + e.message); });
+  } else {
+    delete sites[delKey]; saveLocal(); render();
+    toast("🗑️ ลบแล้ว"); closeDel();
+  }
+}
+
+// ── Links ─────────────────────────────────────────────────
+function copyLink(siteId) {
+  if (!siteId) { toast("⚠️ ไม่มีรหัสไซต์"); return; }
+  var url = BASE_URL + "?site=" + siteId;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { toast("✓ คัดลอกลิงค์แล้ว"); }).catch(function() { prompt("คัดลอกลิงค์:", url); });
+  } else { prompt("คัดลอกลิงค์:", url); }
+}
+
+function copyAllLinks() {
+  var keys = Object.keys(sites);
+  if (!keys.length) { toast("ยังไม่มีไซต์งาน"); return; }
+  var txt = keys.map(function(k) { return sites[k].name + ": " + BASE_URL + "?site=" + sites[k].siteId; }).join("\n");
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(function() { alert("คัดลอกแล้ว!\n\n" + txt); }).catch(function() { alert(txt); });
+  } else { alert(txt); }
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function toast(msg) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(function() { el.classList.remove("show"); }, 3000);
+}
+
+// ── Close on bg click ─────────────────────────────────────
+document.getElementById("edit-modal").addEventListener("click", function(e) { if (e.target.id === "edit-modal") closeEdit(); });
+document.getElementById("del-modal").addEventListener("click",  function(e) { if (e.target.id === "del-modal")  closeDel(); });
+</script>
+</body>
+</html>
