@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: #F5F4F0; min-height: 100vh; color: #1a1a1a; }
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: #1a1a1a; color: #fff; padding: 28px 20px; display: flex; flex-direction: column; z-index: 10; }
+.sidebar-logo { font-size: 13px; font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
+.sidebar-sub { font-size: 12px; color: #666; margin-bottom: 32px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 14px; color: #aaa; cursor: pointer; margin-bottom: 4px; border: none; background: none; width: 100%; text-align: left; font-family: 'Sarabun', sans-serif; transition: all 0.15s; }
+.nav-item:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-item.active { color: #fff; background: rgba(255,255,255,0.12); }
+.live-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; display: inline-block; margin-right: 6px; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.sidebar-footer { margin-top: auto; font-size: 12px; color: #555; }
+
+.main { margin-left: 220px; padding: 32px 28px; }
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.page-title { font-size: 22px; font-weight: 700; }
+.page-date { font-size: 13px; color: #888; margin-top: 2px; }
+
+.tabs { display: flex; gap: 4px; background: #fff; border-radius: 12px; padding: 4px; border: 1px solid #f0f0f0; margin-bottom: 24px; width: fit-content; }
+.tab-btn { padding: 8px 20px; border-radius: 8px; font-size: 14px; font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer; border: none; background: none; color: #888; transition: all 0.15s; }
+.tab-btn.active { background: #1a1a1a; color: #fff; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.filter-select, .month-select { padding: 8px 12px; border: 1.5px solid #e8e8e8; border-radius: 10px; font-size: 13px; font-family: 'Sarabun', sans-serif; background: #fff; color: #1a1a1a; cursor: pointer; }
+.btn { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer; border: 1.5px solid #e8e8e8; background: #fff; color: #1a1a1a; transition: opacity 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { opacity: 0.7; }
+.btn-dark { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.btn-leave { background: #fffbeb; color: #854d0e; border-color: #fde68a; }
+
+.setting-bar { background: #fff; border-radius: 12px; border: 1px solid #f0f0f0; padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.setting-label { font-size: 13px; color: #888; }
+.time-input { padding: 5px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 14px; font-family: 'Sarabun', sans-serif; width: 100px; }
+.save-time-btn { padding: 5px 14px; border-radius: 8px; font-size: 13px; font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer; border: none; background: #1a1a1a; color: #fff; }
+
+.metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+.metric { background: #fff; border-radius: 14px; padding: 16px 18px; border: 1px solid #f0f0f0; }
+.metric-num { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.metric-label { font-size: 12px; color: #888; }
+.num-green { color: #16a34a; }
+.num-orange { color: #d97706; }
+.num-red { color: #dc2626; }
+.num-blue { color: #2563eb; }
+
+.table-card { background: #fff; border-radius: 16px; border: 1px solid #f0f0f0; overflow: hidden; margin-bottom: 20px; }
+.table-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.table-title { font-size: 15px; font-weight: 600; }
+
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11px; font-weight: 700; color: #aaa; letter-spacing: 0.06em; text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; background: #fafafa; }
+td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #f9f9f9; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+.badge-in { background: #f0fdf4; color: #166534; }
+.badge-out { background: #f5f5f5; color: #888; }
+.badge-ontime { background: #f0fdf4; color: #166634; }
+.badge-late { background: #fef9c3; color: #854d0e; }
+.badge-leave { background: #eff6ff; color: #1d4ed8; }
+
+.photo-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid #e8e8e8; }
+.no-photo { width: 44px; height: 44px; border-radius: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+.summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+.sum-card { background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #f0f0f0; text-align: center; }
+.sum-num { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+.sum-label { font-size: 12px; color: #888; }
+
+.report-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+
+/* Leave modal */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+.modal-bg.show { display: flex; }
+.modal-box { background: #fff; border-radius: 20px; width: 100%; max-width: 440px; padding: 28px; }
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; color: #555; font-weight: 500; margin-bottom: 6px; }
+.field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #e8e8e8; border-radius: 10px; font-size: 15px; font-family: 'Sarabun', sans-serif; color: #1a1a1a; background: #fafafa; outline: none; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #1a1a1a; background: #fff; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+.photo-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: center; justify-content: center; }
+.photo-modal-bg.show { display: flex; }
+.modal-img { max-width: 92vw; max-height: 88vh; border-radius: 12px; object-fit: contain; }
+.modal-close { position: fixed; top: 18px; right: 22px; background: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; }
+
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1a1a; color: #fff; padding: 12px 22px; border-radius: 100px; font-size: 13px; font-weight: 500; transition: transform 0.3s; z-index: 300; white-space: nowrap; pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; }
+
+@media (max-width: 1100px) { .metrics { grid-template-columns: repeat(3,1fr); } .summary-bar { grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; padding: 20px 16px; } .metrics { grid-template-columns: repeat(2,1fr); } .summary-bar { grid-template-columns: repeat(2,1fr); } }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">บจก. เจเอ็ม. เพ้นท์ติ้งแอนด์ซัพพลาย</div>
+  <div class="sidebar-sub">ระบบเช็คอินช่าง</div>
+  <button class="nav-item active">📊 Dashboard</button>
+  <button class="nav-item" onclick="location.href='team.html'">👥 ทีมงาน</button>
+  <button class="nav-item" onclick="location.href='report.html'">📋 รายงานรายบุคคล</button>
+  <button class="nav-item" onclick="location.href='sites.html'">⚙️ ตั้งค่าไซต์งาน</button>
+  <div class="sidebar-footer"><span class="live-dot"></span>Real-time sync</div>
+</nav>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Dashboard</div>
+      <div class="page-date" id="today-label"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-leave" onclick="openLeaveModal()">📝 บันทึกวันลา</button>
+      <button class="btn" onclick="openHolidayModal()" style="color:#7c3aed;border-color:#ddd6fe;">🎌 วันหยุด</button>
+      <button class="btn" onclick="openBackfillModal()" style="color:#2563eb;border-color:#bfdbfe;">📋 บันทึกย้อนหลัง</button>
+      <button class="btn" onclick="openCleanModal()" style="color:#dc2626;border-color:#fca5a5;">🗑️ ลบข้อมูลเก่า</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tb-today" onclick="switchTab('today')">📋 วันนี้</button>
+    <button class="tab-btn" id="tb-month" onclick="switchTab('month')">📅 รายเดือน</button>
+    <button class="tab-btn" id="tb-leaves" onclick="switchTab('leaves')">🗓️ ประวัติวันลา</button>
+    <button class="tab-btn" id="tb-holidays" onclick="switchTab('holidays')">🎌 วันหยุด</button>
+  </div>
+
+  <!-- ══ วันนี้ ══ -->
+  <div class="tab-content active" id="tab-today">
+    <div class="setting-bar">
+      <span class="setting-label">⏰ เวลาเริ่มงาน:</span>
+      <input class="time-input" type="time" id="work-start" value="09:00" />
+      <button class="save-time-btn" onclick="saveWorkTime()">บันทึก</button>
+      <span id="work-time-display" style="font-size:13px;color:#166534;font-weight:600;"></span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <select class="filter-select" id="filter-site" onchange="renderToday()"><option value="all">ทุกไซต์</option></select>
+      <button class="btn" onclick="exportTodayCSV()">📥 Export CSV</button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="metric-num" id="m-total">—</div><div class="metric-label">เช็คอินทั้งหมด</div></div>
+      <div class="metric"><div class="metric-num num-green" id="m-in">—</div><div class="metric-label">กำลังทำงาน</div></div>
+      <div class="metric"><div class="metric-num" id="m-out">—</div><div class="metric-label">เช็คเอาท์แล้ว</div></div>
+      <div class="metric"><div class="metric-num num-green" id="m-ontime">—</div><div class="metric-label">✅ ตรงเวลา</div></div>
+      <div class="metric"><div class="metric-num num-red" id="m-late">—</div><div class="metric-label">⚠️ มาสาย</div></div>
+      <div class="metric"><div class="metric-num num-orange" id="m-hours">—</div><div class="metric-label">ชม. เฉลี่ย</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">รายการเช็คอินวันนี้</div>
+        <div style="font-size:12px;color:#aaa;"><span class="live-dot"></span>อัปเดตอัตโนมัติ</div>
+      </div>
+      <div id="table-wrap"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">กำลังโหลด...</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ รายเดือน ══ -->
+  <div class="tab-content" id="tab-month">
+    <div class="report-controls">
+      <select class="month-select" id="report-month" onchange="renderMonth()"></select>
+      <select class="month-select" id="report-site-filter" onchange="renderMonth()"><option value="all">ทุกไซต์</option></select>
+      <button class="btn" onclick="exportMonthCSV()">📥 Export CSV</button>
+    </div>
+    <div class="summary-bar">
+      <div class="sum-card"><div class="sum-num" id="s-present" style="color:#1a1a1a;">—</div><div class="sum-label">มาทำงาน (รวม)</div></div>
+      <div class="sum-card"><div class="sum-num" id="s-late" style="color:#d97706;">—</div><div class="sum-label">⚠️ สาย (รวม)</div></div>
+      <div class="sum-card"><div class="sum-num" id="s-leave" style="color:#2563eb;">—</div><div class="sum-label">📝 ลา (รวม)</div></div>
+      <div class="sum-card"><div class="sum-num" id="s-absent" style="color:#dc2626;">—</div><div class="sum-label">❌ ขาด (รวม)</div></div>
+      <div class="sum-card"><div class="sum-num" id="s-perfect" style="color:#16a34a;">—</div><div class="sum-label">✅ ตรงเวลาทุกวัน</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" id="month-report-title">สรุปรายเดือน</div>
+        <div style="font-size:12px;color:#aaa;">นับจากข้อมูลเช็คอินจริง</div>
+      </div>
+      <div id="month-wrap"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">เลือกเดือนเพื่อดูรายงาน</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ ประวัติวันลา ══ -->
+  <div class="tab-content" id="tab-leaves">
+    <div class="report-controls">
+      <select class="month-select" id="leave-month-filter" onchange="renderLeaves()"></select>
+      <select class="month-select" id="leave-name-filter" onchange="renderLeaves()"><option value="all">ทุกคน</option></select>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">ประวัติวันลาทั้งหมด</div>
+        <button class="btn btn-leave" onclick="openLeaveModal()">+ บันทึกวันลา</button>
+      </div>
+      <div id="leaves-wrap"><div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีข้อมูลวันลา</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: วันหยุด ══ -->
+  <div class="tab-content" id="tab-holidays">
+    <div class="report-controls">
+      <select class="month-select" id="holiday-month-filter" onchange="renderHolidays()"></select>
+      <button class="btn" onclick="openHolidayModal()" style="color:#7c3aed;border-color:#ddd6fe;">+ เพิ่มวันหยุด</button>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">วันหยุดประจำปี (ไม่หักเงิน)</div>
+        <div style="font-size:12px;color:#aaa;">วันหยุดจะไม่นับเป็นวันขาดงาน</div>
+      </div>
+      <div id="holidays-wrap"><div class="empty-state"><div class="empty-icon">🎌</div><div class="empty-text">ยังไม่มีวันหยุด — กดปุ่ม "เพิ่มวันหยุด"</div></div></div>
+    </div>
+  </div>
+</main>
+
+<!-- Leave Modal -->
+<div class="modal-bg" id="leave-modal">
+  <div class="modal-box">
+    <div class="modal-title">📝 บันทึกวันลา</div>
+    <div class="field">
+      <label>ชื่อพนักงาน *</label>
+      <select id="leave-name"><option value="">-- เลือกชื่อ --</option></select>
+    </div>
+    <div class="field">
+      <label>วันที่ลา *</label>
+      <input type="date" id="leave-date" />
+    </div>
+    <div class="field">
+      <label>ประเภทการลา</label>
+      <select id="leave-type">
+        <option value="ลากิจ">ลากิจ</option>
+        <option value="ลาป่วย">ลาป่วย</option>
+        <option value="ลาพักร้อน">ลาพักร้อน</option>
+        <option value="อื่นๆ">อื่นๆ</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>หมายเหตุ</label>
+      <textarea id="leave-note" rows="2" placeholder="เพิ่มเติม (ถ้ามี)"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeLeaveModal()">ยกเลิก</button>
+      <button class="btn btn-dark" onclick="saveLeave()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo Modal -->
+<div class="photo-modal-bg" id="photo-modal" onclick="closePhotoModal()">
+  <button class="modal-close" onclick="closePhotoModal()">✕</button>
+  <img class="modal-img" id="modal-img" src="" alt="รูปหน้างาน" />
+</div>
+
+<!-- Holiday modal -->
+<div class="modal-bg" id="holiday-modal">
+  <div class="modal-box">
+    <div class="modal-title">🎌 เพิ่มวันหยุด</div>
+    <p style="font-size:14px;color:#555;margin-bottom:16px;line-height:1.7;">วันหยุดที่บันทึกจะ <strong>ไม่นับเป็นวันขาดงาน</strong> ในรายงานรายเดือน</p>
+    <div class="field">
+      <label>วันที่หยุด *</label>
+      <input type="date" id="h-date" />
+    </div>
+    <div class="field">
+      <label>ชื่อวันหยุด *</label>
+      <input type="text" id="h-name" placeholder="เช่น วันสงกรานต์, วันแรงงาน" />
+    </div>
+    <div class="field">
+      <label>ประเภท</label>
+      <select id="h-type">
+        <option value="วันหยุดนักขัตฤกษ์">วันหยุดนักขัตฤกษ์</option>
+        <option value="วันหยุดบริษัท">วันหยุดบริษัท</option>
+        <option value="วันหยุดชดเชย">วันหยุดชดเชย</option>
+        <option value="อื่นๆ">อื่นๆ</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>ใช้กับ</label>
+      <select id="h-scope">
+        <option value="all">ทุกคน</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeHolidayModal()">ยกเลิก</button>
+      <button class="btn btn-dark" onclick="saveHoliday()" style="background:#7c3aed;border-color:#7c3aed;">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Backfill modal -->
+<div class="modal-bg" id="backfill-modal">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-title">📋 บันทึกข้อมูลย้อนหลัง</div>
+    <p style="font-size:14px;color:#555;margin-bottom:18px;line-height:1.7;">บันทึกการเข้างานย้อนหลังได้ทีละวัน — เหมาะสำหรับกรอกข้อมูลเดือนที่ผ่านมา</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="field">
+        <label>ชื่อพนักงาน *</label>
+        <select id="bf-name"><option value="">-- เลือกชื่อ --</option></select>
+      </div>
+      <div class="field">
+        <label>วันที่เข้างาน *</label>
+        <input type="date" id="bf-date" />
+      </div>
+      <div class="field">
+        <label>ไซต์งาน *</label>
+        <select id="bf-site"><option value="">-- เลือกไซต์ --</option></select>
+      </div>
+      <div class="field">
+        <label>เวลาเข้างาน *</label>
+        <input type="time" id="bf-checkin-time" value="09:00" />
+      </div>
+      <div class="field">
+        <label>เวลาออกงาน</label>
+        <input type="time" id="bf-checkout-time" value="18:00" />
+      </div>
+      <div class="field">
+        <label>สถานะ</label>
+        <select id="bf-status">
+          <option value="out">เช็คเอาท์แล้ว</option>
+          <option value="in">ยังไม่เช็คเอาท์</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>หมายเหตุ</label>
+      <input type="text" id="bf-note" placeholder="เช่น กรอกย้อนหลัง" />
+    </div>
+
+    <!-- Bulk mode -->
+    <div style="border-top:1px solid #f0f0f0;margin:16px 0 14px;padding-top:14px;">
+      <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:10px;">🗓️ กรอกช่วงเวลา (หลายวันพร้อมกัน)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="field" style="margin:0;">
+          <label>จากวันที่</label>
+          <input type="date" id="bf-from" />
+        </div>
+        <div class="field" style="margin:0;">
+          <label>ถึงวันที่</label>
+          <input type="date" id="bf-to" />
+        </div>
+      </div>
+      <div style="font-size:12px;color:#aaa;margin-top:6px;">* ถ้ากรอกช่วงเวลา จะบันทึกทุกวัน (ยกเว้นวันอาทิตย์) ในช่วงนั้น</div>
+    </div>
+
+    <div id="bf-preview" style="display:none;background:#eff6ff;border-radius:10px;padding:12px 14px;font-size:13px;color:#1d4ed8;margin-bottom:16px;"></div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeBackfillModal()">ยกเลิก</button>
+      <button class="btn" onclick="previewBackfill()" style="background:#f5f5f5;">🔍 ตรวจสอบ</button>
+      <button class="btn btn-dark" id="bf-save-btn" onclick="saveBackfill()" style="display:none;">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Clean old data modal -->
+<div class="modal-bg" id="clean-modal">
+  <div class="modal-box">
+    <div class="modal-title">🗑️ ลบข้อมูลเก่า</div>
+    <p style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.7;">
+      ลบข้อมูลเช็คอินที่เก่ากว่าที่กำหนด เพื่อประหยัดพื้นที่ Firebase<br>
+      <span style="color:#dc2626;font-size:13px;">⚠️ ไม่สามารถกู้คืนได้</span>
+    </p>
+    <div class="field">
+      <label>ลบข้อมูลเก่ากว่า</label>
+      <select id="clean-period">
+        <option value="1">1 เดือน</option>
+        <option value="2">2 เดือน</option>
+        <option value="3" selected>3 เดือน (แนะนำ)</option>
+        <option value="6">6 เดือน</option>
+        <option value="12">12 เดือน</option>
+      </select>
+    </div>
+    <div id="clean-preview" style="background:#fef2f2;border-radius:10px;padding:12px 14px;font-size:13px;color:#991b1b;margin-bottom:16px;display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeCleanModal()">ยกเลิก</button>
+      <button class="btn" onclick="previewClean()" style="background:#f5f5f5;color:#1a1a1a;border-color:#e8e8e8;">🔍 ตรวจสอบ</button>
+      <button class="btn btn-dark" id="confirm-clean-btn" onclick="doClean()" style="background:#dc2626;border-color:#dc2626;display:none;">🗑️ ลบเลย</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var FIREBASE_CFG = {
+  apiKey: "AIzaSyDWyYUy2bMQr339i1rJw1CvvTZb2L9L1VI",
+  authDomain: "jm-checkin.firebaseapp.com",
+  databaseURL: "https://jm-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jm-checkin",
+  storageBucket: "jm-checkin.firebasestorage.app",
+};
+firebase.initializeApp(FIREBASE_CFG);
+var db = firebase.database();
+
+var allRecords   = [];
+var todayRecords = [];
+var allLeaves    = [];
+var members      = {};
+var todayStr     = new Date().toLocaleDateString("th-TH");
+var workStart    = localStorage.getItem("jm_work_start") || "09:00";
+
+document.getElementById("today-label").textContent =
+  new Date().toLocaleDateString("th-TH", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+document.getElementById("work-start").value = workStart;
+document.getElementById("work-time-display").textContent = "เวลาเริ่มงาน: " + workStart + " น.";
+
+// Set default leave date to today
+var todayISO = new Date().toISOString().split("T")[0];
+document.getElementById("leave-date").value = todayISO;
+
+function saveWorkTime() {
+  workStart = document.getElementById("work-start").value;
+  localStorage.setItem("jm_work_start", workStart);
+  document.getElementById("work-time-display").textContent = "เวลาเริ่มงาน: " + workStart + " น.";
+  renderToday();
+}
+
+function getPunctuality(t) {
+  if (!t) return null;
+  var cp = t.split(":"), wp = workStart.split(":");
+  var diff = (parseInt(cp[0])*60+parseInt(cp[1])) - (parseInt(wp[0])*60+parseInt(wp[1]));
+  return diff <= 0 ? {status:"ontime",diff:0} : {status:"late",diff:diff};
+}
+
+// ── Load members ──
+db.ref("members").on("value", function(snap) {
+  members = {};
+  snap.forEach(function(c) { members[c.key] = c.val(); });
+  buildMemberDropdowns();
+});
+
+function buildMemberDropdowns() {
+  var sel = document.getElementById("leave-name");
+  var sel2 = document.getElementById("leave-name-filter");
+  var cur2 = sel2.value;
+  sel.innerHTML  = '<option value="">-- เลือกชื่อ --</option>';
+  sel2.innerHTML = '<option value="all">ทุกคน</option>';
+  Object.keys(members).forEach(function(k) {
+    var m = members[k];
+    if (m.status === "inactive") return;
+    var opt1 = document.createElement("option"); opt1.value = m.name; opt1.textContent = m.name; sel.appendChild(opt1);
+    var opt2 = document.createElement("option"); opt2.value = m.name; opt2.textContent = m.name; if (m.name===cur2) opt2.selected=true; sel2.appendChild(opt2);
+  });
+}
+
+// ── Load checkins ──
+db.ref("checkins").orderByChild("checkinTs").on("value", function(snap) {
+  allRecords = []; todayRecords = [];
+  var siteSet = new Set();
+  snap.forEach(function(c) {
+    var r = Object.assign({id:c.key}, c.val());
+    allRecords.push(r);
+    if (r.checkinDate === todayStr) { todayRecords.push(r); if(r.site) siteSet.add(r.site); }
+  });
+  todayRecords.reverse();
+  var sel = document.getElementById("filter-site"), cur = sel.value;
+  var sel2 = document.getElementById("report-site-filter"), cur2 = sel2.value;
+  sel.innerHTML = sel2.innerHTML = '<option value="all">ทุกไซต์</option>';
+  siteSet.forEach(function(s) {
+    [sel,sel2].forEach(function(el,i){
+      var o=document.createElement("option"); o.value=s; o.textContent=s; if(s===(i===0?cur:cur2)) o.selected=true; el.appendChild(o);
+    });
+  });
+  renderToday();
+  if (document.getElementById("tab-month").classList.contains("active")) renderMonth();
+});
+
+// ── Load leaves ──
+db.ref("leaves").orderByChild("ts").on("value", function(snap) {
+  allLeaves = [];
+  snap.forEach(function(c) { allLeaves.push(Object.assign({id:c.key}, c.val())); });
+  allLeaves.reverse();
+  if (document.getElementById("tab-leaves").classList.contains("active")) renderLeaves();
+});
+
+// ── Month dropdowns ──
+(function() {
+  var now = new Date();
+  ["report-month","leave-month-filter","holiday-month-filter"].forEach(function(id) {
+    var sel = document.getElementById(id);
+    for (var i=0; i<12; i++) {
+      var d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      var val = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+      var lbl = d.toLocaleDateString("th-TH", {month:"long",year:"numeric"});
+      var o = document.createElement("option"); o.value=val; o.textContent=lbl; sel.appendChild(o);
+    }
+  });
+})();
+
+// ── Tabs ──
+function switchTab(tab) {
+  ["today","month","leaves","holidays"].forEach(function(t) {
+    document.getElementById("tb-"+t).classList.toggle("active", t===tab);
+    document.getElementById("tab-"+t).classList.toggle("active", t===tab);
+  });
+  if (tab==="month") renderMonth();
+  if (tab==="leaves") renderLeaves();
+  if (tab==="holidays") renderHolidays();
+}
+
+// ══ TAB: วันนี้ ══
+function renderToday() {
+  var filter = document.getElementById("filter-site").value;
+  var filtered = filter==="all" ? todayRecords : todayRecords.filter(function(r){return r.site===filter;});
+  var inC=0,outC=0,lateC=0,ontimeC=0,withH=[];
+  filtered.forEach(function(r){
+    if(r.status==="in") inC++; else outC++;
+    var p=getPunctuality(r.checkinTime);
+    if(p){if(p.status==="late")lateC++;else ontimeC++;}
+    if(r.checkoutTs&&r.checkinTs) withH.push(r);
+  });
+  var avgH = withH.length ? (withH.reduce(function(s,r){return s+(r.checkoutTs-r.checkinTs);},0)/withH.length/3600000).toFixed(1) : "—";
+  document.getElementById("m-total").textContent=filtered.length;
+  document.getElementById("m-in").textContent=inC;
+  document.getElementById("m-out").textContent=outC;
+  document.getElementById("m-ontime").textContent=ontimeC;
+  document.getElementById("m-late").textContent=lateC;
+  document.getElementById("m-hours").textContent=avgH;
+
+  var wrap=document.getElementById("table-wrap");
+  if (!filtered.length){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีข้อมูลวันนี้</div></div>';return;}
+
+  var rows=filtered.map(function(r){
+    var p=getPunctuality(r.checkinTime);
+    var pB=p?(p.status==="ontime"?'<span class="badge badge-ontime">✅ ตรงเวลา</span>':'<span class="badge badge-late">⚠️ สาย '+p.diff+' นาที</span>'):"—";
+    var hrs=r.checkoutTs&&r.checkinTs?((r.checkoutTs-r.checkinTs)/3600000).toFixed(1)+" ชม.":r.status==="in"?'<span style="color:#888;font-size:12px;">กำลังทำงาน</span>':"—";
+    var wB=r.status==="in"?'<span class="badge badge-in">ทำงานอยู่</span>':'<span class="badge badge-out">เช็คเอาท์แล้ว</span>';
+    var src=r.photoData||r.photoURL||"";
+    var photo=src?'<img class="photo-thumb" src="'+src+'" onclick="openPhoto(\''+src+'\')" alt="รูป" />':'<div class="no-photo">📷</div>';
+    var gps=r.lat?'<a href="https://maps.google.com/?q='+r.lat+','+r.lng+'" target="_blank" style="font-size:18px;">📍</a>':"—";
+    return '<tr><td><strong>'+r.name+'</strong><br><span style="font-size:12px;color:#aaa;">'+(r.tel||"")+'</span></td>'+
+      '<td>'+r.site+'</td><td style="font-weight:600;">'+r.checkinTime+'</td><td>'+pB+'</td>'+
+      '<td>'+(r.checkoutTime||"—")+'</td><td>'+hrs+'</td><td>'+gps+'</td><td>'+photo+'</td><td>'+wB+'</td></tr>';
+  }).join("");
+  wrap.innerHTML='<table><thead><tr><th>ชื่อช่าง</th><th>ไซต์</th><th>เช็คอิน</th><th>เวลางาน</th><th>เช็คเอาท์</th><th>ชม.</th><th>GPS</th><th>รูป</th><th>สถานะ</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ══ TAB: รายเดือน ══
+var monthReportRows = [];
+function renderMonth() {
+  var val=document.getElementById("report-month").value;
+  var parts=val.split("-"), year=parseInt(parts[0]), month=parseInt(parts[1]);
+  var sf=document.getElementById("report-site-filter").value;
+  var wp=workStart.split(":"), wh=parseInt(wp[0]), wm=parseInt(wp[1]);
+  var daysInMonth=new Date(year,month,0).getDate(), wdc=0;
+  for(var d=1;d<=daysInMonth;d++){if(new Date(year,month-1,d).getDay()!==0)wdc++;}
+
+  var mCheckins=allRecords.filter(function(r){
+    if(!r.checkinTs)return false;
+    var cd=new Date(r.checkinTs);
+    return cd.getFullYear()===year&&cd.getMonth()+1===month&&(sf==="all"||r.site===sf);
+  });
+
+  // วันลาของเดือนนี้
+  var mLeaves=allLeaves.filter(function(l){
+    if(!l.date)return false;
+    var ld=new Date(l.date);
+    return ld.getFullYear()===year&&ld.getMonth()+1===month;
+  });
+
+  var memberList=Object.keys(members).filter(function(k){return members[k].status!=="inactive";}).map(function(k){return members[k];});
+  if(!memberList.length){
+    var ns=new Set(mCheckins.map(function(r){return r.name;}));
+    ns.forEach(function(n){memberList.push({name:n,position:""});});
+  }
+
+  monthReportRows=memberList.map(function(m){
+    var myRec=mCheckins.filter(function(r){return r.name===m.name;});
+    var days=new Set(myRec.map(function(r){return new Date(r.checkinTs).toDateString();}));
+    var myLeaves=mLeaves.filter(function(l){return l.name===m.name;});
+    var leaveDays=myLeaves.length;
+    var holidayDays=getHolidayDaysInMonth(year,month,m.name);
+    var present=days.size;
+    var absent=Math.max(0,wdc-present-leaveDays-holidayDays);
+    var lateDays=0,totalLateMin=0;
+    myRec.forEach(function(r){
+      if(!r.checkinTime)return;
+      var cp=r.checkinTime.split(":");
+      var diff=(parseInt(cp[0])*60+parseInt(cp[1]))-(wh*60+wm);
+      if(diff>0){lateDays++;totalLateMin+=diff;}
+    });
+    var avgLate=lateDays>0?Math.round(totalLateMin/lateDays):0;
+    return {name:m.name,position:m.position||"",present:present,absent:absent,leaveDays:leaveDays,holidayDays:holidayDays,lateDays:lateDays,avgLate:avgLate,leaveDetails:myLeaves};
+  });
+
+  var tPresent=monthReportRows.reduce(function(s,r){return s+r.present;},0);
+  var tLate=monthReportRows.reduce(function(s,r){return s+r.lateDays;},0);
+  var tLeave=monthReportRows.reduce(function(s,r){return s+r.leaveDays;},0);
+  var tAbsent=monthReportRows.reduce(function(s,r){return s+r.absent;},0);
+  var perfect=monthReportRows.filter(function(r){return r.lateDays===0&&r.absent===0;}).length;
+  document.getElementById("s-present").textContent=tPresent;
+  document.getElementById("s-late").textContent=tLate;
+  document.getElementById("s-leave").textContent=tLeave;
+  document.getElementById("s-absent").textContent=tAbsent;
+  document.getElementById("s-perfect").textContent=perfect;
+
+  var thMonth=new Date(year,month-1,1).toLocaleDateString("th-TH",{month:"long",year:"numeric"});
+  document.getElementById("month-report-title").textContent="สรุปประจำเดือน "+thMonth+" (วันทำงาน "+wdc+" วัน)";
+
+  var wrap=document.getElementById("month-wrap");
+  if(!monthReportRows.length){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">👷</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';return;}
+
+  var rows=monthReportRows.map(function(r){
+    var aCls=r.absent>3?"color:#dc2626;font-weight:700;":r.absent>0?"color:#d97706;font-weight:700;":"color:#d1d5db;";
+    var laCls=r.lateDays>5?"color:#dc2626;font-weight:700;":r.lateDays>0?"color:#d97706;font-weight:700;":"color:#d1d5db;";
+    var lvCls=r.leaveDays>0?"color:#2563eb;font-weight:700;":"color:#d1d5db;";
+    var status=r.absent===0&&r.lateDays===0?'<span style="color:#16a34a;font-weight:600;">✅ ดีมาก</span>':
+      r.absent>3||r.lateDays>5?'<span style="color:#dc2626;font-weight:600;">⚠️ ต้องดูแล</span>':
+      '<span style="color:#d97706;font-weight:600;">🔔 ระวัง</span>';
+    var lateLabel=r.lateDays>0?r.lateDays+' วัน<br><span style="font-size:11px;color:#aaa;">เฉลี่ย '+r.avgLate+' นาที</span>':'<span style="color:#d1d5db;">—</span>';
+    var leaveLabel=r.leaveDays>0?r.leaveDays+' วัน':'<span style="color:#d1d5db;">—</span>';
+    var absentLabel=r.absent>0?r.absent+' วัน':'<span style="color:#d1d5db;">—</span>';
+    return '<tr>'+
+      '<td><strong>'+r.name+'</strong><br><span style="font-size:12px;color:#aaa;">'+r.position+'</span></td>'+
+      '<td style="text-align:center;font-size:20px;font-weight:700;">'+r.present+'</td>'+
+      '<td style="text-align:center;font-size:16px;'+laCls+'">'+lateLabel+'</td>'+
+      '<td style="text-align:center;font-size:16px;'+lvCls+'">'+leaveLabel+'</td>'+
+      '<td style="text-align:center;font-size:16px;'+aCls+'">'+absentLabel+'</td>'+
+      '<td style="text-align:center;">'+status+'</td>'+
+    '</tr>';
+  }).join("");
+  wrap.innerHTML='<table><thead><tr><th>ชื่อ</th><th style="text-align:center;">มา(วัน)</th><th style="text-align:center;">⚠️ สาย</th><th style="text-align:center;">📝 ลา</th><th style="text-align:center;">❌ ขาด</th><th style="text-align:center;">ภาพรวม</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ══ TAB: ประวัติวันลา ══
+function renderLeaves() {
+  var mf=document.getElementById("leave-month-filter").value;
+  var nf=document.getElementById("leave-name-filter").value;
+  var filtered=allLeaves.filter(function(l){
+    if(nf!=="all"&&l.name!==nf)return false;
+    if(mf){
+      var p=mf.split("-"); var y=parseInt(p[0]),m=parseInt(p[1]);
+      var ld=new Date(l.date);
+      if(ld.getFullYear()!==y||ld.getMonth()+1!==m)return false;
+    }
+    return true;
+  });
+  var wrap=document.getElementById("leaves-wrap");
+  if(!filtered.length){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีข้อมูลวันลา</div></div>';return;}
+  var rows=filtered.map(function(l){
+    var dateDisplay=l.date?new Date(l.date).toLocaleDateString("th-TH",{weekday:"short",day:"numeric",month:"short",year:"numeric"}):"—";
+    return '<tr>'+
+      '<td><strong>'+l.name+'</strong></td>'+
+      '<td>'+dateDisplay+'</td>'+
+      '<td><span class="badge badge-leave">'+l.type+'</span></td>'+
+      '<td style="color:#888;">'+(l.note||"—")+'</td>'+
+      '<td><button class="btn" style="padding:4px 10px;font-size:12px;color:#dc2626;border-color:#fca5a5;" onclick="deleteLeave(\''+l.id+'\')">ลบ</button></td>'+
+    '</tr>';
+  }).join("");
+  wrap.innerHTML='<table><thead><tr><th>ชื่อ</th><th>วันที่</th><th>ประเภท</th><th>หมายเหตุ</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ── Leave CRUD ──
+function openLeaveModal() { document.getElementById("leave-modal").classList.add("show"); }
+function closeLeaveModal() { document.getElementById("leave-modal").classList.remove("show"); }
+
+function saveLeave() {
+  var name=document.getElementById("leave-name").value.trim();
+  var date=document.getElementById("leave-date").value;
+  var type=document.getElementById("leave-type").value;
+  var note=document.getElementById("leave-note").value.trim();
+  if(!name){toast("⚠️ กรุณาเลือกชื่อพนักงาน");return;}
+  if(!date){toast("⚠️ กรุณาเลือกวันที่");return;}
+  db.ref("leaves").push({ name:name, date:date, type:type, note:note, ts:Date.now() })
+    .then(function(){ toast("✓ บันทึกวันลาแล้ว"); closeLeaveModal(); document.getElementById("leave-note").value=""; })
+    .catch(function(e){ toast("❌ "+e.message); });
+}
+
+function deleteLeave(id) {
+  if (!confirm("ลบรายการวันลานี้?")) return;
+  db.ref("leaves/"+id).remove().then(function(){ toast("🗑️ ลบแล้ว"); }).catch(function(e){ toast("❌ "+e.message); });
+}
+
+// ── Export CSV ──
+function exportTodayCSV() {
+  if(!todayRecords.length){alert("ยังไม่มีข้อมูล");return;}
+  var h="ชื่อ,เบอร์,ไซต์,เช็คอิน,เวลางาน,เช็คเอาท์,ชั่วโมง,สถานะ,Lat,Lng\n";
+  var r=todayRecords.map(function(r){
+    var p=getPunctuality(r.checkinTime); var pL=p?(p.status==="ontime"?"ตรงเวลา":"สาย "+p.diff+" นาที"):"";
+    var h=r.checkoutTs&&r.checkinTs?((r.checkoutTs-r.checkinTs)/3600000).toFixed(2):"";
+    return [r.name,r.tel||"",r.site,r.checkinTime,pL,r.checkoutTime||"",h,r.status,r.lat||"",r.lng||""].join(",");
+  }).join("\n");
+  dlCSV("\uFEFF"+h+r,"checkin_"+todayStr.replace(/\//g,"-")+".csv");
+}
+
+function exportMonthCSV() {
+  if(!monthReportRows.length){alert("กรุณาเลือกเดือนก่อน");return;}
+  var title=document.getElementById("month-report-title").textContent;
+  var h="ชื่อ,ตำแหน่ง,มาทำงาน(วัน),สาย(วัน),สายเฉลี่ย(นาที),ลา(วัน),ขาด(วัน)\n";
+  var r=monthReportRows.map(function(r){return [r.name,r.position,r.present,r.lateDays,r.avgLate,r.leaveDays,r.absent].join(",");}).join("\n");
+  dlCSV("\uFEFF"+h+r,"รายงาน_"+title+".csv");
+}
+
+function dlCSV(content,filename){
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([content],{type:"text/csv;charset=utf-8"}));
+  a.download=filename; a.click();
+}
+
+function openPhoto(src){ document.getElementById("modal-img").src=src; document.getElementById("photo-modal").classList.add("show"); }
+function closePhotoModal(){ document.getElementById("photo-modal").classList.remove("show"); }
+
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove("show");},3000); }
+
+document.getElementById("leave-modal").addEventListener("click",function(e){if(e.target.id==="leave-modal")closeLeaveModal();});
+document.getElementById("clean-modal").addEventListener("click",function(e){if(e.target.id==="clean-modal")closeCleanModal();});
+document.getElementById("backfill-modal").addEventListener("click",function(e){if(e.target.id==="backfill-modal")closeBackfillModal();});
+document.getElementById("holiday-modal").addEventListener("click",function(e){if(e.target.id==="holiday-modal")closeHolidayModal();});
+
+// ── Holidays ─────────────────────────────
+var allHolidays = [];
+
+db.ref("holidays").orderByChild("date").on("value", function(snap) {
+  allHolidays = [];
+  snap.forEach(function(c) { allHolidays.push(Object.assign({id:c.key}, c.val())); });
+  if (document.getElementById("tab-holidays").classList.contains("active")) renderHolidays();
+  // อัปเดตรายงานรายเดือนถ้าเปิดอยู่
+  if (document.getElementById("tab-month").classList.contains("active")) renderMonth();
+});
+
+function openHolidayModal() {
+  // set default date today
+  document.getElementById("h-date").value = new Date().toISOString().split("T")[0];
+  document.getElementById("h-name").value = "";
+  document.getElementById("h-type").value = "วันหยุดนักขัตฤกษ์";
+  // populate scope
+  var sel = document.getElementById("h-scope");
+  sel.innerHTML = '<option value="all">ทุกคน</option>';
+  Object.keys(members).forEach(function(k) {
+    var m = members[k];
+    if (m.status === "inactive") return;
+    var opt = document.createElement("option");
+    opt.value = m.name; opt.textContent = m.name; sel.appendChild(opt);
+  });
+  document.getElementById("holiday-modal").classList.add("show");
+}
+function closeHolidayModal() { document.getElementById("holiday-modal").classList.remove("show"); }
+
+function saveHoliday() {
+  var date  = document.getElementById("h-date").value;
+  var name  = document.getElementById("h-name").value.trim();
+  var type  = document.getElementById("h-type").value;
+  var scope = document.getElementById("h-scope").value;
+  if (!date) { toast("⚠️ กรุณาเลือกวันที่"); return; }
+  if (!name) { toast("⚠️ กรุณากรอกชื่อวันหยุด"); return; }
+  db.ref("holidays").push({ date:date, name:name, type:type, scope:scope, ts:Date.now() })
+    .then(function() { toast("✅ เพิ่มวันหยุดแล้ว"); closeHolidayModal(); })
+    .catch(function(e){ toast("❌ "+e.message); });
+}
+
+function deleteHoliday(id) {
+  if (!confirm("ลบวันหยุดนี้?")) return;
+  db.ref("holidays/"+id).remove().then(function(){ toast("🗑️ ลบแล้ว"); });
+}
+
+function isHoliday(dateStr, memberName) {
+  // dateStr = "1/1/2568" (th-TH format) หรือ ISO
+  return allHolidays.some(function(h) {
+    if (!h.date) return false;
+    // เปรียบเทียบ ISO date
+    var hDate = new Date(h.date).toLocaleDateString("th-TH");
+    var match = hDate === dateStr;
+    // ตรวจว่าใช้กับคนนี้ไหม
+    var scopeMatch = h.scope === "all" || h.scope === memberName;
+    return match && scopeMatch;
+  });
+}
+
+function getHolidayDaysInMonth(year, month, memberName) {
+  return allHolidays.filter(function(h) {
+    if (!h.date) return false;
+    var d = new Date(h.date);
+    var scopeMatch = h.scope === "all" || h.scope === memberName;
+    return d.getFullYear() === year && d.getMonth()+1 === month && scopeMatch;
+  }).length;
+}
+
+function renderHolidays() {
+  var mf = document.getElementById("holiday-month-filter").value;
+  var filtered = mf ? allHolidays.filter(function(h) {
+    if (!h.date) return false;
+    var d = new Date(h.date);
+    var parts = mf.split("-");
+    return d.getFullYear()===parseInt(parts[0]) && d.getMonth()+1===parseInt(parts[1]);
+  }) : allHolidays;
+
+  var wrap = document.getElementById("holidays-wrap");
+  if (!filtered.length) {
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">🎌</div><div class="empty-text">ยังไม่มีวันหยุด</div></div>';
+    return;
+  }
+  var rows = filtered.map(function(h) {
+    var dateDisplay = h.date ? new Date(h.date).toLocaleDateString("th-TH",{weekday:"short",day:"numeric",month:"long",year:"numeric"}) : "—";
+    return '<tr>'+
+      '<td><strong>'+h.name+'</strong></td>'+
+      '<td>'+dateDisplay+'</td>'+
+      '<td><span class="badge" style="background:#f5f3ff;color:#7c3aed;">'+h.type+'</span></td>'+
+      '<td style="color:#888;">'+(h.scope==="all"?"ทุกคน":h.scope)+'</td>'+
+      '<td><button class="btn" style="padding:4px 10px;font-size:12px;color:#dc2626;border-color:#fca5a5;" onclick="deleteHoliday(\''+h.id+'\')">ลบ</button></td>'+
+    '</tr>';
+  }).join("");
+  wrap.innerHTML = '<table><thead><tr><th>ชื่อวันหยุด</th><th>วันที่</th><th>ประเภท</th><th>ใช้กับ</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ── Backfill ─────────────────────────────
+function openBackfillModal() {
+  // populate member dropdown
+  var sel = document.getElementById("bf-name");
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">-- เลือกชื่อ --</option>';
+  Object.keys(members).forEach(function(k) {
+    var m = members[k];
+    if (m.status === "inactive") return;
+    var opt = document.createElement("option");
+    opt.value = m.name; opt.textContent = m.name;
+    if (m.name === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+
+  // populate site dropdown
+  var ssel = document.getElementById("bf-site");
+  var scur = ssel.value;
+  ssel.innerHTML = '<option value="">-- เลือกไซต์ --</option>';
+  // collect sites from checkins
+  var siteSet = new Set(allRecords.map(function(r){return r.site;}).filter(Boolean));
+  // also add from members' checkins
+  db.ref("sites").once("value", function(snap) {
+    snap.forEach(function(c) { if(c.val().name) siteSet.add(c.val().name); });
+    siteSet.forEach(function(s) {
+      var opt = document.createElement("option");
+      opt.value = s; opt.textContent = s;
+      if (s === scur) opt.selected = true;
+      ssel.appendChild(opt);
+    });
+  });
+
+  document.getElementById("bf-preview").style.display = "none";
+  document.getElementById("bf-save-btn").style.display = "none";
+  document.getElementById("bf-from").value = "";
+  document.getElementById("bf-to").value = "";
+  document.getElementById("bf-note").value = "กรอกย้อนหลัง";
+  document.getElementById("backfill-modal").classList.add("show");
+}
+
+function closeBackfillModal() {
+  document.getElementById("backfill-modal").classList.remove("show");
+}
+
+function getBackfillDates() {
+  var singleDate = document.getElementById("bf-date").value;
+  var fromDate   = document.getElementById("bf-from").value;
+  var toDate     = document.getElementById("bf-to").value;
+
+  if (fromDate && toDate) {
+    // ช่วงเวลา
+    var dates = [];
+    var cur = new Date(fromDate);
+    var end = new Date(toDate);
+    while (cur <= end) {
+      if (cur.getDay() !== 0) { // ไม่นับอาทิตย์
+        dates.push(new Date(cur).toISOString().split("T")[0]);
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+    return dates;
+  } else if (singleDate) {
+    return [singleDate];
+  }
+  return [];
+}
+
+function previewBackfill() {
+  var name     = document.getElementById("bf-name").value;
+  var site     = document.getElementById("bf-site").value;
+  var timeIn   = document.getElementById("bf-checkin-time").value;
+  var preview  = document.getElementById("bf-preview");
+  var saveBtn  = document.getElementById("bf-save-btn");
+
+  if (!name)   { toast("⚠️ กรุณาเลือกชื่อพนักงาน"); return; }
+  if (!site)   { toast("⚠️ กรุณาเลือกไซต์งาน"); return; }
+  if (!timeIn) { toast("⚠️ กรุณากรอกเวลาเข้างาน"); return; }
+
+  var dates = getBackfillDates();
+  if (!dates.length) { toast("⚠️ กรุณาเลือกวันที่ หรือช่วงวันที่"); return; }
+
+  preview.style.display = "block";
+  preview.innerHTML = "📋 จะบันทึก <strong>" + dates.length + " วัน</strong> สำหรับ <strong>" + name + "</strong>" +
+    "<br>ไซต์: " + site + " · เข้า " + timeIn + " น." +
+    (dates.length <= 5 ? "<br>วันที่: " + dates.map(function(d){
+      return new Date(d).toLocaleDateString("th-TH",{day:"numeric",month:"short"});
+    }).join(", ") : "<br>ตั้งแต่ " + new Date(dates[0]).toLocaleDateString("th-TH",{day:"numeric",month:"long",year:"numeric"}) +
+    " ถึง " + new Date(dates[dates.length-1]).toLocaleDateString("th-TH",{day:"numeric",month:"long",year:"numeric"}));
+  saveBtn.style.display = "inline-flex";
+}
+
+function saveBackfill() {
+  var name      = document.getElementById("bf-name").value;
+  var site      = document.getElementById("bf-site").value;
+  var timeIn    = document.getElementById("bf-checkin-time").value;
+  var timeOut   = document.getElementById("bf-checkout-time").value;
+  var status    = document.getElementById("bf-status").value;
+  var note      = document.getElementById("bf-note").value.trim();
+  var dates     = getBackfillDates();
+
+  if (!dates.length || !name || !site) return;
+
+  document.getElementById("bf-preview").innerHTML = "⏳ กำลังบันทึก " + dates.length + " รายการ...";
+  document.getElementById("bf-save-btn").disabled = true;
+
+  var promises = dates.map(function(dateISO) {
+    var d = new Date(dateISO);
+    var dateStr = d.toLocaleDateString("th-TH");
+    var ts = d.getTime();
+
+    // คำนวณ timestamp จากเวลา
+    var inParts  = timeIn.split(":"); var checkinTs = ts + parseInt(inParts[0])*3600000 + parseInt(inParts[1])*60000;
+    var outParts = timeOut.split(":"); var checkoutTs = ts + parseInt(outParts[0])*3600000 + parseInt(outParts[1])*60000;
+
+    var record = {
+      name: name, tel: "",
+      site: site, siteFloor: "",
+      checkinTime: timeIn, checkinDate: dateStr, checkinTs: checkinTs,
+      lat: null, lng: null, photoData: null, photoURL: "",
+      status: status, note: note || "กรอกย้อนหลัง",
+      isBackfill: true,
+    };
+    if (status === "out") {
+      record.checkoutTime = timeOut;
+      record.checkoutTs   = checkoutTs;
+    }
+    return db.ref("checkins").push(record);
+  });
+
+  Promise.all(promises)
+    .then(function() {
+      toast("✅ บันทึกย้อนหลัง " + dates.length + " วัน เรียบร้อย");
+      document.getElementById("bf-save-btn").disabled = false;
+      closeBackfillModal();
+    })
+    .catch(function(e) {
+      toast("❌ " + e.message);
+      document.getElementById("bf-save-btn").disabled = false;
+    });
+}
+
+// ── Clean old data ──────────────────────
+function openCleanModal() {
+  document.getElementById("clean-preview").style.display = "none";
+  document.getElementById("confirm-clean-btn").style.display = "none";
+  document.getElementById("clean-modal").classList.add("show");
+}
+function closeCleanModal() { document.getElementById("clean-modal").classList.remove("show"); }
+
+function previewClean() {
+  var months = parseInt(document.getElementById("clean-period").value);
+  var cutoff = Date.now() - (months * 30 * 24 * 60 * 60 * 1000);
+  var oldRecords = allRecords.filter(function(r){ return r.checkinTs && r.checkinTs < cutoff; });
+  var preview = document.getElementById("clean-preview");
+  if (!oldRecords.length) {
+    preview.style.background = "#f0fdf4";
+    preview.style.color = "#166534";
+    preview.innerHTML = "✅ ไม่มีข้อมูลเก่ากว่า " + months + " เดือน";
+    preview.style.display = "block";
+    document.getElementById("confirm-clean-btn").style.display = "none";
+    return;
+  }
+  // คำนวณขนาดโดยประมาณ
+  var sizeKB = oldRecords.reduce(function(s,r){ return s + (r.photoData ? 200 : 2); }, 0);
+  var sizeTxt = sizeKB > 1024 ? (sizeKB/1024).toFixed(1)+" MB" : sizeKB+" KB";
+  preview.style.background = "#fef2f2";
+  preview.style.color = "#991b1b";
+  preview.innerHTML = "⚠️ พบ <strong>" + oldRecords.length + " รายการ</strong> ที่เก่ากว่า " + months + " เดือน<br>" +
+    "ประมาณ " + sizeTxt + " จะถูกลบ";
+  preview.style.display = "block";
+  document.getElementById("confirm-clean-btn").style.display = "inline-flex";
+}
+
+function doClean() {
+  var months = parseInt(document.getElementById("clean-period").value);
+  var cutoff = Date.now() - (months * 30 * 24 * 60 * 60 * 1000);
+  var oldRecords = allRecords.filter(function(r){ return r.checkinTs && r.checkinTs < cutoff; });
+  if (!oldRecords.length) { toast("ไม่มีข้อมูลที่ต้องลบ"); closeCleanModal(); return; }
+
+  var preview = document.getElementById("clean-preview");
+  preview.innerHTML = "⏳ กำลังลบ " + oldRecords.length + " รายการ...";
+
+  var promises = oldRecords.map(function(r){ return db.ref("checkins/"+r.id).remove(); });
+  Promise.all(promises)
+    .then(function() {
+      toast("✅ ลบข้อมูลเก่า " + oldRecords.length + " รายการเรียบร้อย");
+      closeCleanModal();
+    })
+    .catch(function(e){ toast("❌ " + e.message); });
+}
+</script>
+</body>
+</html>
