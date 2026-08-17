@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ระบบบัญชีต้นทุนร้านอาหาร</title>
+<style>
+:root{
+  color-scheme: light;
+  --surface-1:#fcfcfb; --page:#f9f9f7;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,0.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --good-text:#006300;
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-1:#1a1a19; --page:#0d0d0d;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,0.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --good-text:#0ca30c;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--page); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif;
+  font-size:14px; line-height:1.55;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:16px 18px 64px}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;padding:14px 0 10px}
+h1{font-size:20px;margin:0;letter-spacing:-.2px}
+.sub{color:var(--ink-2);font-size:13px;margin-top:2px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select,input,textarea{font-family:inherit;font-size:13px}
+.btn{background:var(--surface-1);color:var(--ink);border:1px solid var(--ring);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--axis)}
+.btn.primary{background:var(--s1);border-color:var(--s1);color:#fff}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--crit)}
+input[type=text],input[type=number],input[type=date],input[type=month],select,textarea{
+  background:var(--surface-1);color:var(--ink);border:1px solid var(--ring);border-radius:8px;padding:7px 9px;width:100%
+}
+input:focus,select:focus{outline:2px solid var(--s1);outline-offset:1px}
+nav.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--grid);margin:10px 0 18px}
+.tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 13px;cursor:pointer;color:var(--ink-2);border-radius:6px 6px 0 0;font-size:13.5px}
+.tab:hover{background:var(--surface-1);color:var(--ink)}
+.tab.active{color:var(--ink);border-bottom-color:var(--s1);font-weight:600}
+section.page{display:none}
+section.page.active{display:block}
+.card{background:var(--surface-1);border:1px solid var(--ring);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 4px}
+.card .hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+.grid{display:grid;gap:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface-1);border:1px solid var(--ring);border-radius:12px;padding:14px 15px}
+.kpi .label{color:var(--ink-2);font-size:12.5px}
+.kpi .value{font-size:25px;font-weight:650;letter-spacing:-.5px;margin-top:3px}
+.kpi .note{font-size:12px;color:var(--muted);margin-top:3px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:2px 8px;border-radius:99px;border:1px solid var(--ring);color:var(--ink-2)}
+.pill.good{color:var(--good-text);border-color:var(--good)}
+.pill.warn{color:var(--serious);border-color:var(--warn)}
+.pill.bad{color:var(--crit);border-color:var(--crit)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--grid);vertical-align:middle}
+th{color:var(--ink-2);font-weight:600;font-size:12.5px;white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:hover{background:color-mix(in srgb,var(--s1) 5%,transparent)}
+tfoot td{font-weight:650;border-top:2px solid var(--axis);border-bottom:none}
+.formrow{display:grid;gap:8px;margin-bottom:12px}
+.formrow label{display:block;font-size:12px;color:var(--ink-2);margin-bottom:3px}
+.rowbtns{display:flex;gap:6px}
+.icon-btn{background:none;border:1px solid var(--ring);border-radius:6px;color:var(--ink-2);cursor:pointer;padding:3px 8px;font-size:12px}
+.icon-btn:hover{color:var(--crit);border-color:var(--crit)}
+.empty{color:var(--muted);text-align:center;padding:22px;font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:2px 0 10px;font-size:12.5px;color:var(--ink-2)}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-inline-end:6px}
+.chartbox{position:relative;width:100%;overflow:visible}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:fixed;pointer-events:none;background:var(--surface-1);border:1px solid var(--axis);border-radius:8px;padding:8px 10px;font-size:12.5px;box-shadow:0 6px 20px rgba(0,0,0,.14);opacity:0;transition:opacity .1s;z-index:60;max-width:250px}
+.tip b{display:block;margin-bottom:3px;font-size:12.5px}
+.tip .row{display:flex;justify-content:space-between;gap:14px;font-variant-numeric:tabular-nums}
+.bar-track{height:8px;background:var(--grid);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.f6{grid-template-columns:repeat(6,1fr)}
+.f5{grid-template-columns:repeat(5,1fr)}
+.f4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){.f6,.f5,.f4{grid-template-columns:1fr 1fr}}
+.status-dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-inline-end:6px}
+.tblwrap{overflow-x:auto}
+.chk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2)}
+.chk input{width:auto}
+.note-box{background:color-mix(in srgb,var(--s4) 12%,var(--surface-1));border:1px solid color-mix(in srgb,var(--s4) 40%,transparent);border-radius:10px;padding:11px 13px;font-size:12.8px;color:var(--ink-2)}
+.bench{font-size:12px;color:var(--muted)}
+@media print{
+  .toolbar,nav.tabs,.rowbtns,.formrow,.icon-btn{display:none!important}
+  section.page{display:block!important;break-inside:avoid}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <h1 id="shopTitle">ระบบบัญชีต้นทุนร้านอาหาร</h1>
+    <div class="sub">คุมต้นทุนตั้งแต่ตกแต่งร้าน → วัตถุดิบ → เงินเดือน → ค่าใช้จ่ายประจำ</div>
+  </div>
+  <div class="toolbar">
+    <button class="btn" onclick="loadDemo()">ตัวอย่างข้อมูล</button>
+    <button class="btn" onclick="importData()">โหลดไฟล์ข้อมูล</button>
+    <button class="btn primary" onclick="exportData()">บันทึกไฟล์ข้อมูล</button>
+    <button class="btn" onclick="window.print()">พิมพ์ / PDF</button>
+    <button class="btn ghost" onclick="toggleTheme()" title="สลับโหมดสว่าง/มืด">◐</button>
+  </div>
+</header>
+
+<div class="note-box" style="margin-bottom:14px">
+  <b>สำคัญ:</b> ข้อมูลเก็บอยู่ในหน้าเว็บนี้เท่านั้น — ก่อนปิดหน้าต่างให้กด <b>“บันทึกไฟล์ข้อมูล”</b> เพื่อเซฟเป็นไฟล์ <code>.json</code> ไว้ในเครื่อง แล้วครั้งหน้าเปิดไฟล์นี้แล้วกด “โหลดไฟล์ข้อมูล” เพื่อทำงานต่อ
+</div>
+
+<nav class="tabs" id="tabs"></nav>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="page active" id="page-dash">
+  <div class="card" style="padding:13px 16px">
+    <div class="grid f4" style="align-items:end">
+      <div><label>ชื่อร้าน</label><input type="text" id="metaName" placeholder="เช่น ร้านครัวคุณแม่" oninput="setMeta('name',this.value)"></div>
+      <div><label>เดือนที่ดูข้อมูล</label><select id="monthPick" onchange="setMonth(this.value)"></select></div>
+      <div><label>วันเปิดร้าน</label><input type="date" id="metaOpen" oninput="setMeta('openDate',this.value)"></div>
+      <div><label>เป้าหมายกำไรขั้นต้น (%)</label><input type="number" id="metaTarget" value="15" min="0" max="100" oninput="setMeta('targetMargin',this.value)"></div>
+    </div>
+  </div>
+
+  <h2 style="font-size:14px;color:var(--ink-2);margin:18px 0 8px">เงินลงทุนก่อนเปิดร้าน</h2>
+  <div class="kpis" id="kpiInvest"></div>
+
+  <h2 style="font-size:14px;color:var(--ink-2);margin:20px 0 8px">ผลประกอบการเดือน <span id="monthLabel"></span></h2>
+  <div class="kpis" id="kpiMonth"></div>
+
+  <div class="two">
+    <div class="card">
+      <h2>โครงสร้างต้นทุนเทียบยอดขาย</h2>
+      <p class="hint">เทียบกับเกณฑ์มาตรฐานร้านอาหาร — แถบสีเทาคือช่วงที่ควรอยู่</p>
+      <div id="ratioBars"></div>
+    </div>
+    <div class="card">
+      <h2>สัดส่วนต้นทุนเดือนนี้</h2>
+      <p class="hint">แบ่งตามหมวดค่าใช้จ่าย (ไม่รวมเงินลงทุนก่อนเปิดร้าน)</p>
+      <div class="legend" id="mixLegend"></div>
+      <div class="chartbox" id="mixChart"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ยอดขาย เทียบ ต้นทุนรวม รายเดือน</h2>
+    <p class="hint">ส่วนที่สูงกว่าคือกำไร — ถ้าต้นทุนสูงกว่ายอดขายคือเดือนนั้นขาดทุน</p>
+    <div class="legend">
+      <span><i style="background:var(--s1)"></i>ยอดขาย</span>
+      <span><i style="background:var(--s2)"></i>ต้นทุนรวม</span>
+    </div>
+    <div class="chartbox" id="trendChart"></div>
+  </div>
+
+  <div class="card">
+    <h2>สรุปรายเดือนทั้งหมด</h2>
+    <div class="tblwrap"><table id="monthTable"></table></div>
+  </div>
+</section>
+
+<!-- ================= SETUP ================= -->
+<section class="page" id="page-setup">
+  <div class="kpis" id="kpiSetup"></div>
+
+  <div class="card">
+    <h2>เพิ่มรายการต้นทุนก่อนเปิดร้าน</h2>
+    <p class="hint">ตกแต่ง ก่อสร้าง เฟอร์นิเจอร์ อุปกรณ์ครัว ป้าย ใบอนุญาต เงินมัดจำ ฯลฯ — ใส่ “งบที่ตั้งไว้” เพื่อเทียบกับที่จ่ายจริง</p>
+    <div class="formrow grid f6">
+      <div><label>หมวด</label><select id="su_cat"></select></div>
+      <div><label>รายการ</label><input type="text" id="su_item" placeholder="เช่น ทาสี+ฝ้าเพดาน"></div>
+      <div><label>ผู้ขาย/ผู้รับเหมา</label><input type="text" id="su_vendor"></div>
+      <div><label>งบที่ตั้งไว้ (บาท)</label><input type="number" id="su_budget" min="0" step="100"></div>
+      <div><label>จ่ายจริง (บาท)</label><input type="number" id="su_actual" min="0" step="100"></div>
+      <div><label>วันที่</label><input type="date" id="su_date"></div>
+    </div>
+    <div class="rowbtns">
+      <label class="chk"><input type="checkbox" id="su_paid" checked> จ่ายแล้ว</label>
+      <button class="btn primary" onclick="addSetup()">+ เพิ่มรายการ</button>
+      <button class="btn" onclick="exportCSV('setup')">ส่งออก CSV</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ความคืบหน้าตามหมวด (งบ vs จ่ายจริง)</h2>
+    <div class="legend">
+      <span><i style="background:var(--s1)"></i>งบที่ตั้งไว้</span>
+      <span><i style="background:var(--s2)"></i>จ่ายจริง</span>
+    </div>
+    <div class="chartbox" id="setupChart"></div>
+  </div>
+
+  <div class="card">
+    <h2>รายการทั้งหมด</h2>
+    <div class="tblwrap"><table id="setupTable"></table></div>
+  </div>
+</section>
+
+<!-- ================= PURCHASES ================= -->
+<section class="page" id="page-buy">
+  <div class="kpis" id="kpiBuy"></div>
+  <div class="card">
+    <h2>บันทึกการซื้อวัตถุดิบ / ของใช้</h2>
+    <p class="hint">ลงทุกครั้งที่ซื้อของ — ระบบจะรวมเป็นต้นทุนวัตถุดิบของเดือนนั้นให้อัตโนมัติ</p>
+    <div class="formrow grid f6">
+      <div><label>วันที่</label><input type="date" id="bu_date"></div>
+      <div><label>หมวด</label><select id="bu_cat"></select></div>
+      <div><label>รายการ</label><input type="text" id="bu_item" placeholder="เช่น หมูสามชั้น 10 กก."></div>
+      <div><label>ร้าน/ซัพพลายเออร์</label><input type="text" id="bu_vendor"></div>
+      <div><label>จำนวนเงิน (บาท)</label><input type="number" id="bu_amt" min="0" step="1"></div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <label class="chk"><input type="checkbox" id="bu_paid" checked> จ่ายแล้ว</label>
+      </div>
+    </div>
+    <div class="rowbtns">
+      <button class="btn primary" onclick="addBuy()">+ เพิ่มรายการ</button>
+      <button class="btn" onclick="exportCSV('purchases')">ส่งออก CSV</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>ยอดซื้อรายวันในเดือนนี้</h2>
+    <div class="chartbox" id="buyChart"></div>
+  </div>
+  <div class="card">
+    <h2>รายการซื้อ (เดือน <span class="mlabel"></span>)</h2>
+    <div class="tblwrap"><table id="buyTable"></table></div>
+  </div>
+</section>
+
+<!-- ================= PAYROLL ================= -->
+<section class="page" id="page-pay">
+  <div class="kpis" id="kpiPay"></div>
+  <div class="card">
+    <h2>เพิ่มพนักงาน / ค่าแรงประจำเดือน</h2>
+    <p class="hint">รายเดือน = ใส่เงินเดือน · รายวัน = ใส่ค่าแรงต่อวัน แล้วใส่จำนวนวันทำงาน</p>
+    <div class="formrow grid f6">
+      <div><label>เดือน</label><input type="month" id="pa_month"></div>
+      <div><label>ชื่อ</label><input type="text" id="pa_name"></div>
+      <div><label>ตำแหน่ง</label><select id="pa_pos"></select></div>
+      <div><label>ประเภท</label><select id="pa_type"><option value="monthly">รายเดือน</option><option value="daily">รายวัน</option></select></div>
+      <div><label>อัตรา (บาท)</label><input type="number" id="pa_rate" min="0" step="10"></div>
+      <div><label>จำนวนวัน</label><input type="number" id="pa_days" min="0" max="31" value="30"></div>
+    </div>
+    <div class="formrow grid f4">
+      <div><label>ค่าล่วงเวลา OT (บาท)</label><input type="number" id="pa_ot" min="0" step="10" value="0"></div>
+      <div><label>เบี้ยเลี้ยง/โบนัส (บาท)</label><input type="number" id="pa_other" min="0" step="10" value="0"></div>
+      <div style="display:flex;align-items:flex-end"><label class="chk"><input type="checkbox" id="pa_sso" checked> หักประกันสังคม (นายจ้างสมทบ 5%)</label></div>
+      <div style="display:flex;align-items:flex-end;gap:6px">
+        <button class="btn primary" onclick="addPay()">+ เพิ่มพนักงาน</button>
+        <button class="btn" onclick="exportCSV('payroll')">CSV</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>ค่าแรงตามตำแหน่ง (เดือน <span class="mlabel"></span>)</h2>
+    <div class="chartbox" id="payChart"></div>
+  </div>
+  <div class="card">
+    <h2>รายชื่อพนักงาน (เดือน <span class="mlabel"></span>)</h2>
+    <div class="tblwrap"><table id="payTable"></table></div>
+    <p class="bench" style="margin-top:8px">* นายจ้างสมทบประกันสังคม 5% ของค่าจ้าง (ฐานสูงสุด 15,000 บาท = สมทบไม่เกิน 750 บาท/คน/เดือน) — ปรับได้ตามประกาศล่าสุด</p>
+  </div>
+</section>
+
+<!-- ================= OPEX ================= -->
+<section class="page" id="page-opex">
+  <div class="kpis" id="kpiOpex"></div>
+  <div class="card">
+    <h2>ค่าใช้จ่ายประจำเดือน</h2>
+    <p class="hint">ค่าเช่า ค่าไฟ ค่าน้ำ แก๊ส อินเทอร์เน็ต การตลาด ค่าธรรมเนียมแอปเดลิเวอรี ฯลฯ</p>
+    <div class="formrow grid f5">
+      <div><label>เดือน</label><input type="month" id="op_month"></div>
+      <div><label>หมวด</label><select id="op_cat"></select></div>
+      <div><label>รายละเอียด</label><input type="text" id="op_item"></div>
+      <div><label>จำนวนเงิน (บาท)</label><input type="number" id="op_amt" min="0" step="10"></div>
+      <div style="display:flex;align-items:flex-end;gap:6px">
+        <label class="chk"><input type="checkbox" id="op_paid" checked> จ่ายแล้ว</label>
+      </div>
+    </div>
+    <div class="rowbtns">
+      <button class="btn primary" onclick="addOpex()">+ เพิ่มรายการ</button>
+      <button class="btn" onclick="copyPrevOpex()">คัดลอกจากเดือนก่อน</button>
+      <button class="btn" onclick="exportCSV('opex')">ส่งออก CSV</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>ค่าใช้จ่ายประจำตามหมวด (เดือน <span class="mlabel"></span>)</h2>
+    <div class="chartbox" id="opexChart"></div>
+  </div>
+  <div class="card">
+    <h2>รายการทั้งหมด (เดือน <span class="mlabel"></span>)</h2>
+    <div class="tblwrap"><table id="opexTable"></table></div>
+  </div>
+</section>
+
+<!-- ================= SALES ================= -->
+<section class="page" id="page-sales">
+  <div class="card">
+    <h2>บันทึกยอดขายรายเดือน</h2>
+    <p class="hint">ใส่ยอดขายเพื่อให้ระบบคำนวณ % ต้นทุน กำไร และจุดคุ้มทุนได้</p>
+    <div class="formrow grid f4">
+      <div><label>เดือน</label><input type="month" id="sa_month"></div>
+      <div><label>ยอดขายรวม (บาท)</label><input type="number" id="sa_rev" min="0" step="100"></div>
+      <div><label>จำนวนลูกค้า (บิล)</label><input type="number" id="sa_cust" min="0"></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn primary" onclick="addSales()">บันทึก / อัปเดต</button></div>
+    </div>
+    <div class="tblwrap"><table id="salesTable"></table></div>
+  </div>
+  <div class="card">
+    <h2>จุดคุ้มทุน (Break-even)</h2>
+    <p class="hint">ยอดขายขั้นต่ำที่ต้องทำให้ได้ในเดือนนี้ ถึงจะไม่ขาดทุน</p>
+    <div id="beBox"></div>
+  </div>
+</section>
+
+<!-- ================= GUIDE ================= -->
+<section class="page" id="page-help">
+  <div class="card">
+    <h2>วิธีใช้แบบเร็ว</h2>
+    <ol style="margin:8px 0 0;padding-inline-start:20px;color:var(--ink-2)">
+      <li>กด <b>“ตัวอย่างข้อมูล”</b> เพื่อดูว่าหน้าตาระบบเป็นยังไง แล้วค่อยกด “ล้างข้อมูลทั้งหมด” ด้านล่างเพื่อเริ่มของจริง</li>
+      <li>กรอก <b>ต้นทุนก่อนเปิดร้าน</b> ทุกอย่างที่จ่ายไปแล้วและที่ตั้งงบไว้ → ดูว่าใช้เงินเกินงบหรือยัง</li>
+      <li>ทุกวันที่ซื้อของ ลงในแท็บ <b>วัตถุดิบ/ซื้อของ</b></li>
+      <li>ต้นเดือนลง <b>เงินเดือน</b> และ <b>ค่าใช้จ่ายประจำ</b> (มีปุ่มคัดลอกจากเดือนก่อน)</li>
+      <li>สิ้นเดือนลง <b>ยอดขาย</b> → หน้าภาพรวมจะบอกทันทีว่ากำไร/ขาดทุน และต้นทุนส่วนไหนเกินเกณฑ์</li>
+      <li><b>กด “บันทึกไฟล์ข้อมูล” ทุกครั้งก่อนปิด</b></li>
+    </ol>
+  </div>
+  <div class="card">
+    <h2>เกณฑ์มาตรฐานที่ระบบใช้เทียบ</h2>
+    <table>
+      <tr><th>ตัวชี้วัด</th><th>ช่วงที่ดี</th><th>ความหมาย</th></tr>
+      <tr><td>Food Cost (ต้นทุนวัตถุดิบ)</td><td>28–35% ของยอดขาย</td><td>เกิน 35% = ตั้งราคาต่ำไป หรือของเสีย/ของหายเยอะ</td></tr>
+      <tr><td>Labor Cost (ค่าแรง)</td><td>18–25% ของยอดขาย</td><td>เกิน = คนเยอะเกินยอดขาย หรือจัดกะไม่ดี</td></tr>
+      <tr><td>Prime Cost (วัตถุดิบ+ค่าแรง)</td><td>ไม่เกิน 60–65%</td><td>ตัวชี้วัดสำคัญที่สุดของร้านอาหาร</td></tr>
+      <tr><td>ค่าเช่า</td><td>ไม่เกิน 10% ของยอดขาย</td><td>เกินมากจะกำไรยาก</td></tr>
+      <tr><td>กำไรสุทธิ</td><td>10–15%+</td><td>ร้านทั่วไปอยู่ราว 5–15%</td></tr>
+    </table>
+    <p class="bench" style="margin-top:8px">เกณฑ์เหล่านี้เป็นค่าอ้างอิงทั่วไปของธุรกิจร้านอาหาร ใช้เป็นแนวทาง ไม่ใช่กฎตายตัว — ร้านแต่ละประเภท (บุฟเฟต์ คาเฟ่ ตามสั่ง) ต่างกัน</p>
+  </div>
+  <div class="card">
+    <h2>จัดการข้อมูล</h2>
+    <div class="rowbtns">
+      <button class="btn primary" onclick="exportData()">บันทึกไฟล์ข้อมูล (.json)</button>
+      <button class="btn" onclick="importData()">โหลดไฟล์ข้อมูล</button>
+      <button class="btn danger" onclick="clearAll()">ล้างข้อมูลทั้งหมด</button>
+    </div>
+  </div>
+</section>
+
+</div>
+<div class="tip" id="tip"></div>
+<input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+
+<script>
+"use strict";
+/* ============================ CONFIG ============================ */
+const CATS = {
+  setup: ["ตกแต่ง/ก่อสร้าง","เฟอร์นิเจอร์","อุปกรณ์ครัว","อุปกรณ์เสิร์ฟ/ภาชนะ","ป้าย/แบรนด์","ระบบ POS/ไอที","ใบอนุญาต/จดทะเบียน","เงินมัดจำ/ค่าเซ้ง","วัตถุดิบตั้งต้น","การตลาดเปิดร้าน","เงินสำรองหมุนเวียน","อื่นๆ"],
+  buy: ["เนื้อสัตว์","ผัก/ผลไม้","ของแห้ง/เครื่องปรุง","อาหารทะเล","เครื่องดื่ม","บรรจุภัณฑ์","ของใช้ในครัว","อื่นๆ"],
+  pos: ["เจ้าของ/ผู้จัดการ","เชฟ/หัวหน้าครัว","ผู้ช่วยครัว","พนักงานเสิร์ฟ","แคชเชียร์","ล้างจาน/ทำความสะอาด","พาร์ทไทม์"],
+  opex: ["ค่าเช่าที่","ค่าไฟ","ค่าน้ำ","ค่าแก๊ส","อินเทอร์เน็ต/โทรศัพท์","ค่าธรรมเนียมเดลิเวอรี","การตลาด/โฆษณา","ค่าขนส่ง","ซ่อมบำรุง","ทำความสะอาด/ขยะ","ภาษี/ค่าธรรมเนียม","ผ่อนอุปกรณ์/ดอกเบี้ย","อื่นๆ"]
+};
+const C = ["var(--s1)","var(--s2)","var(--s3)","var(--s4)","var(--s5)","var(--s6)"];
+const BENCH = { food:[28,35], labor:[18,25], prime:[55,65], opex:[15,25] };
+const SSO_RATE = 0.05, SSO_BASE_CAP = 15000;
+
+/* ============================ STATE ============================ */
+let S = blank();
+let VIEW = ym(new Date());
+
+function blank(){
+  return { meta:{name:"",openDate:"",targetMargin:15}, setup:[], purchases:[], payroll:[], opex:[], sales:[] };
+}
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function ym(d){ return d.toISOString().slice(0,7); }
+function n(v){ const x = parseFloat(v); return isFinite(x) ? x : 0; }
+function money(v){ return (Math.round(n(v))).toLocaleString('en-US'); }
+function money2(v){ return n(v).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function pct(v){ return (Math.round(n(v)*10)/10).toFixed(1)+"%"; }
+function monthTH(m){
+  if(!m) return "-";
+  const T=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const [y,mm]=m.split("-"); return T[parseInt(mm,10)-1]+" "+(parseInt(y,10)+543-2500>=0?String(parseInt(y,10)+543).slice(2):y);
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ============================ TABS ============================ */
+const TABS = [
+  ["dash","ภาพรวม"],["setup","ก่อนเปิดร้าน"],["buy","วัตถุดิบ/ซื้อของ"],
+  ["pay","เงินเดือน/ค่าแรง"],["opex","ค่าใช้จ่ายประจำ"],["sales","ยอดขาย & จุดคุ้มทุน"],["help","วิธีใช้"]
+];
+function buildTabs(){
+  document.getElementById("tabs").innerHTML = TABS.map((t,i)=>
+    `<button class="tab${i===0?" active":""}" data-p="${t[0]}" onclick="go('${t[0]}')">${t[1]}</button>`).join("");
+}
+function go(p){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.p===p));
+  document.querySelectorAll("section.page").forEach(s=>s.classList.toggle("active",s.id==="page-"+p));
+  render();
+}
+
+/* ============================ CALC ============================ */
+function payRow(r){
+  const base = r.type==="daily" ? n(r.rate)*n(r.days) : n(r.rate);
+  const gross = base + n(r.ot) + n(r.other);
+  const sso = r.sso ? Math.min(base, SSO_BASE_CAP)*SSO_RATE : 0;
+  return { base, gross, sso, total: gross + sso };
+}
+function monthsList(){
+  const set = new Set();
+  S.purchases.forEach(r=>r.date && set.add(r.date.slice(0,7)));
+  S.payroll.forEach(r=>r.month && set.add(r.month));
+  S.opex.forEach(r=>r.month && set.add(r.month));
+  S.sales.forEach(r=>r.month && set.add(r.month));
+  set.add(VIEW); set.add(ym(new Date()));
+  return [...set].filter(Boolean).sort();
+}
+function calcMonth(m){
+  const food = S.purchases.filter(r=>r.date && r.date.slice(0,7)===m).reduce((a,r)=>a+n(r.amount),0);
+  const labor = S.payroll.filter(r=>r.month===m).reduce((a,r)=>a+payRow(r).total,0);
+  const opex = S.opex.filter(r=>r.month===m).reduce((a,r)=>a+n(r.amount),0);
+  const sale = S.sales.find(r=>r.month===m);
+  const revenue = sale? n(sale.revenue):0;
+  const customers = sale? n(sale.customers):0;
+  const cost = food+labor+opex;
+  const profit = revenue - cost;
+  const rate = x => revenue>0 ? x/revenue*100 : 0;
+  const fixed = labor + opex;
+  const foodRatio = revenue>0 ? food/revenue : 0;
+  const be = (revenue>0 && foodRatio<1) ? fixed/(1-foodRatio) : (fixed>0? null : 0);
+  return { m, food, labor, opex, revenue, customers, cost, profit,
+    foodPct:rate(food), laborPct:rate(labor), opexPct:rate(opex),
+    primePct:rate(food+labor), profitPct:rate(profit), be,
+    avgBill: customers>0 ? revenue/customers : 0 };
+}
+function calcSetup(){
+  const budget = S.setup.reduce((a,r)=>a+n(r.budget),0);
+  const actual = S.setup.reduce((a,r)=>a+n(r.actual),0);
+  const paid = S.setup.filter(r=>r.paid).reduce((a,r)=>a+n(r.actual),0);
+  const unpaid = actual - paid;
+  const byCat = {};
+  CATS.setup.forEach(c=>byCat[c]={budget:0,actual:0});
+  S.setup.forEach(r=>{ if(!byCat[r.cat]) byCat[r.cat]={budget:0,actual:0};
+    byCat[r.cat].budget += n(r.budget); byCat[r.cat].actual += n(r.actual); });
+  return { budget, actual, paid, unpaid, byCat, variance: actual-budget,
+    progress: budget>0 ? actual/budget*100 : 0 };
+}
+
+/* ============================ RENDER ============================ */
+function render(){
+  document.getElementById("shopTitle").textContent = S.meta.name ? S.meta.name : "ระบบบัญชีต้นทุนร้านอาหาร";
+  document.getElementById("metaName").value = S.meta.name||"";
+  document.getElementById("metaOpen").value = S.meta.openDate||"";
+  document.getElementById("metaTarget").value = S.meta.targetMargin!=null?S.meta.targetMargin:15;
+  document.getElementById("monthLabel").textContent = monthTH(VIEW);
+  document.querySelectorAll(".mlabel").forEach(e=>e.textContent = monthTH(VIEW));
+  const sel = document.getElementById("monthPick");
+  sel.innerHTML = monthsList().map(m=>`<option value="${m}"${m===VIEW?" selected":""}>${monthTH(m)}</option>`).join("");
+  renderDash(); renderSetup(); renderBuy(); renderPay(); renderOpex(); renderSales();
+}
+
+function kpi(label, value, note, cls){
+  return `<div class="kpi"><div class="label">${label}</div><div class="value"${cls?` style="color:${cls}"`:""}>${value}</div>${note?`<div class="note">${note}</div>`:""}</div>`;
+}
+function statusPill(v, range, invert){
+  if(!isFinite(v)||v===0) return `<span class="pill">ยังไม่มีข้อมูล</span>`;
+  const [lo,hi]=range;
+  if(v<lo) return `<span class="pill good">● ต่ำกว่าเกณฑ์ (ดี)</span>`;
+  if(v<=hi) return `<span class="pill good">● อยู่ในเกณฑ์</span>`;
+  if(v<=hi*1.15) return `<span class="pill warn">● เริ่มสูง</span>`;
+  return `<span class="pill bad">● สูงเกินเกณฑ์</span>`;
+}
+
+/* ---------- Dashboard ---------- */
+function renderDash(){
+  const st = calcSetup(), M = calcMonth(VIEW);
+  const overBudget = st.variance>0;
+  document.getElementById("kpiInvest").innerHTML =
+    kpi("เงินลงทุนที่จ่ายจริง", "฿"+money(st.actual), `จากงบที่ตั้งไว้ ฿${money(st.budget)}`) +
+    kpi(overBudget?"เกินงบ":"เหลืองบ", (overBudget?"+":"")+"฿"+money(Math.abs(st.variance)),
+        st.budget>0?`ใช้ไปแล้ว ${pct(st.progress)} ของงบ`:"ยังไม่ได้ตั้งงบ",
+        overBudget?"var(--crit)":"var(--good-text)") +
+    kpi("ค้างจ่าย (เจ้าหนี้)", "฿"+money(st.unpaid), st.unpaid>0?"ยังไม่ได้ชำระ":"ชำระครบแล้ว", st.unpaid>0?"var(--serious)":"") +
+    kpi("คืนทุนภายใน", paybackText(st.actual), "จากกำไรเฉลี่ยต่อเดือน");
+
+  const pf = M.profit;
+  document.getElementById("kpiMonth").innerHTML =
+    kpi("ยอดขาย", "฿"+money(M.revenue), M.customers>0?`${money(M.customers)} บิล · เฉลี่ย ฿${money(M.avgBill)}/บิล`:"ยังไม่ได้ลงยอดขาย") +
+    kpi("ต้นทุนรวม", "฿"+money(M.cost), `วัตถุดิบ ฿${money(M.food)} · ค่าแรง ฿${money(M.labor)} · ประจำ ฿${money(M.opex)}`) +
+    kpi(pf>=0?"กำไรสุทธิ":"ขาดทุน", "฿"+money(Math.abs(pf)),
+        M.revenue>0?`${pct(Math.abs(M.profitPct))} ของยอดขาย (เป้า ${n(S.meta.targetMargin)}%)`:"—",
+        pf>=0?"var(--good-text)":"var(--crit)") +
+    kpi("Prime Cost", M.revenue>0?pct(M.primePct):"—", "วัตถุดิบ+ค่าแรง · ควรไม่เกิน 65%",
+        M.revenue>0?(M.primePct>65?"var(--crit)":M.primePct>60?"var(--serious)":"var(--good-text)"):"");
+
+  // ratio bars
+  const rows = [
+    ["ต้นทุนวัตถุดิบ (Food)", M.foodPct, BENCH.food, "var(--s1)"],
+    ["ค่าแรง (Labor)", M.laborPct, BENCH.labor, "var(--s2)"],
+    ["Prime Cost", M.primePct, BENCH.prime, "var(--s3)"],
+    ["ค่าใช้จ่ายประจำ", M.opexPct, BENCH.opex, "var(--s4)"]
+  ];
+  document.getElementById("ratioBars").innerHTML = M.revenue<=0
+    ? `<div class="empty">ยังไม่ได้ลงยอดขายของเดือน ${monthTH(VIEW)} — ไปที่แท็บ “ยอดขาย” เพื่อกรอก</div>`
+    : rows.map(([lb,v,rg,col])=>{
+      const w = Math.min(v,100);
+      return `<div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+          <span>${lb} ${statusPill(v,rg)}</span>
+          <b style="font-variant-numeric:tabular-nums">${pct(v)}</b>
+        </div>
+        <div style="position:relative;margin-top:6px">
+          <div class="bar-track"></div>
+          <div class="bar-fill" style="position:absolute;top:0;left:0;width:${w}%;background:${col}"></div>
+          <div style="position:absolute;top:-4px;left:${rg[0]}%;width:${rg[1]-rg[0]}%;height:16px;border-left:2px solid var(--ink-2);border-right:2px solid var(--ink-2);border-radius:2px"></div>
+        </div>
+        <div class="bench" style="margin-top:3px">เกณฑ์แนะนำ ${rg[0]}–${rg[1]}%</div>
+      </div>`;
+    }).join("");
+
+  // mix donut
+  const mix = [["วัตถุดิบ",M.food,C[0]],["ค่าแรง",M.labor,C[1]],["ค่าใช้จ่ายประจำ",M.opex,C[2]]].filter(x=>x[1]>0);
+  document.getElementById("mixLegend").innerHTML = mix.map(x=>`<span><i style="background:${x[2]}"></i>${x[0]} ฿${money(x[1])}</span>`).join("");
+  document.getElementById("mixChart").innerHTML = mix.length? donut(mix, M.cost) : `<div class="empty">ยังไม่มีต้นทุนในเดือนนี้</div>`;
+
+  // trend
+  const ms = monthsList().filter(m=>{const c=calcMonth(m); return c.cost>0||c.revenue>0;});
+  document.getElementById("trendChart").innerHTML = ms.length
+    ? groupedBars(ms.map(m=>{const c=calcMonth(m);return{label:monthTH(m),vals:[c.revenue,c.cost]}}),
+        [{name:"ยอดขาย",color:"var(--s1)"},{name:"ต้นทุนรวม",color:"var(--s2)"}])
+    : `<div class="empty">ยังไม่มีข้อมูล</div>`;
+
+  // month table
+  const all = monthsList().filter(m=>{const c=calcMonth(m); return c.cost>0||c.revenue>0;});
+  if(!all.length) all.push(VIEW);
+  document.getElementById("monthTable").innerHTML =
+    `<thead><tr><th>เดือน</th><th class="num">ยอดขาย</th><th class="num">วัตถุดิบ</th><th class="num">ค่าแรง</th><th class="num">ประจำ</th><th class="num">ต้นทุนรวม</th><th class="num">กำไร/ขาดทุน</th><th class="num">Food%</th><th class="num">Labor%</th><th class="num">Prime%</th></tr></thead><tbody>`
+    + all.map(m=>{const c=calcMonth(m);
+        return `<tr><td>${monthTH(m)}</td><td class="num">${money(c.revenue)}</td><td class="num">${money(c.food)}</td><td class="num">${money(c.labor)}</td><td class="num">${money(c.opex)}</td><td class="num">${money(c.cost)}</td><td class="num" style="color:${c.profit>=0?'var(--good-text)':'var(--crit)'}">${c.profit>=0?"":"-"}${money(Math.abs(c.profit))}</td><td class="num">${c.revenue>0?pct(c.foodPct):"—"}</td><td class="num">${c.revenue>0?pct(c.laborPct):"—"}</td><td class="num">${c.revenue>0?pct(c.primePct):"—"}</td></tr>`;
+      }).join("") + `</tbody>`;
+}
+function paybackText(invest){
+  const ms = monthsList().map(calcMonth).filter(c=>c.revenue>0);
+  if(!ms.length || invest<=0) return "—";
+  const avg = ms.reduce((a,c)=>a+c.profit,0)/ms.length;
+  if(avg<=0) return "ยังขาดทุน";
+  const mo = invest/avg;
+  return (Math.round(mo*10)/10) + " เดือน";
+}
+
+/* ---------- Setup tab ---------- */
+function renderSetup(){
+  const st = calcSetup();
+  document.getElementById("kpiSetup").innerHTML =
+    kpi("งบที่ตั้งไว้รวม","฿"+money(st.budget)) +
+    kpi("จ่ายจริงรวม","฿"+money(st.actual), st.budget>0?`${pct(st.progress)} ของงบ`:"") +
+    kpi(st.variance>0?"เกินงบ":"เหลืองบ",(st.variance>0?"+":"")+"฿"+money(Math.abs(st.variance)),"",st.variance>0?"var(--crit)":"var(--good-text)") +
+    kpi("ค้างจ่าย","฿"+money(st.unpaid),"",st.unpaid>0?"var(--serious)":"");
+
+  const cats = Object.entries(st.byCat).filter(([k,v])=>v.budget>0||v.actual>0);
+  document.getElementById("setupChart").innerHTML = cats.length
+    ? hGrouped(cats.map(([k,v])=>({label:k,vals:[v.budget,v.actual]})),
+        [{name:"งบที่ตั้งไว้",color:"var(--s1)"},{name:"จ่ายจริง",color:"var(--s2)"}])
+    : `<div class="empty">ยังไม่มีรายการ</div>`;
+
+  document.getElementById("setupTable").innerHTML = S.setup.length ? (
+    `<thead><tr><th>หมวด</th><th>รายการ</th><th>ผู้ขาย</th><th>วันที่</th><th class="num">งบ</th><th class="num">จ่ายจริง</th><th class="num">ส่วนต่าง</th><th>สถานะ</th><th></th></tr></thead><tbody>`
+    + S.setup.map(r=>{const d=n(r.actual)-n(r.budget);
+      return `<tr><td>${esc(r.cat)}</td><td>${esc(r.item)}</td><td>${esc(r.vendor)}</td><td>${esc(r.date)}</td>
+      <td class="num">${money(r.budget)}</td><td class="num">${money(r.actual)}</td>
+      <td class="num" style="color:${d>0?'var(--crit)':d<0?'var(--good-text)':'inherit'}">${d>0?"+":""}${money(d)}</td>
+      <td>${r.paid?'<span class="status-dot" style="background:var(--good)"></span>จ่ายแล้ว':'<span class="status-dot" style="background:var(--serious)"></span>ค้างจ่าย'}</td>
+      <td><button class="icon-btn" onclick="del('setup','${r.id}')">ลบ</button></td></tr>`}).join("")
+    + `</tbody><tfoot><tr><td colspan="4">รวม</td><td class="num">${money(st.budget)}</td><td class="num">${money(st.actual)}</td><td class="num">${st.variance>0?"+":""}${money(st.variance)}</td><td colspan="2"></td></tr></tfoot>`
+  ) : `<tbody><tr><td class="empty">ยังไม่มีรายการ — เพิ่มด้านบน</td></tr></tbody>`;
+}
+
+/* ---------- Buy tab ---------- */
+function renderBuy(){
+  const rows = S.purchases.filter(r=>r.date && r.date.slice(0,7)===VIEW).sort((a,b)=>a.date<b.date?1:-1);
+  const total = rows.reduce((a,r)=>a+n(r.amount),0);
+  const unpaid = rows.filter(r=>!r.paid).reduce((a,r)=>a+n(r.amount),0);
+  const M = calcMonth(VIEW);
+  const days = new Set(rows.map(r=>r.date)).size;
+  document.getElementById("kpiBuy").innerHTML =
+    kpi("ยอดซื้อเดือนนี้","฿"+money(total)) +
+    kpi("Food Cost %", M.revenue>0?pct(M.foodPct):"—","เกณฑ์ 28–35%",M.revenue>0?(M.foodPct>35?"var(--crit)":M.foodPct>32?"var(--serious)":"var(--good-text)"):"") +
+    kpi("เฉลี่ยต่อวันที่ซื้อ","฿"+money(days?total/days:0), days+" วันที่มีการซื้อ") +
+    kpi("ค้างจ่ายซัพพลายเออร์","฿"+money(unpaid),"",unpaid>0?"var(--serious)":"");
+
+  const byDay = {};
+  rows.forEach(r=>{ byDay[r.date]=(byDay[r.date]||0)+n(r.amount); });
+  const dk = Object.keys(byDay).sort();
+  document.getElementById("buyChart").innerHTML = dk.length
+    ? groupedBars(dk.map(d=>({label:d.slice(8),vals:[byDay[d]]})),[{name:"ยอดซื้อ",color:"var(--s1)"}])
+    : `<div class="empty">ยังไม่มีรายการซื้อในเดือนนี้</div>`;
+
+  const byCat = {};
+  rows.forEach(r=>byCat[r.cat]=(byCat[r.cat]||0)+n(r.amount));
+  document.getElementById("buyTable").innerHTML = rows.length ? (
+    `<thead><tr><th>วันที่</th><th>หมวด</th><th>รายการ</th><th>ร้าน</th><th class="num">จำนวนเงิน</th><th class="num">% ของเดือน</th><th>สถานะ</th><th></th></tr></thead><tbody>`
+    + rows.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.cat)}</td><td>${esc(r.item)}</td><td>${esc(r.vendor)}</td>
+      <td class="num">${money(r.amount)}</td><td class="num">${total>0?pct(n(r.amount)/total*100):"—"}</td>
+      <td>${r.paid?'<span class="status-dot" style="background:var(--good)"></span>จ่ายแล้ว':'<span class="status-dot" style="background:var(--serious)"></span>ค้างจ่าย'}</td>
+      <td><button class="icon-btn" onclick="del('purchases','${r.id}')">ลบ</button></td></tr>`).join("")
+    + `</tbody><tfoot><tr><td colspan="4">รวมทั้งเดือน</td><td class="num">${money(total)}</td><td colspan="3"></td></tr></tfoot>`
+  ) : `<tbody><tr><td class="empty">ยังไม่มีรายการซื้อในเดือน ${monthTH(VIEW)}</td></tr></tbody>`;
+}
+
+/* ---------- Payroll ---------- */
+function renderPay(){
+  const rows = S.payroll.filter(r=>r.month===VIEW);
+  const tot = rows.reduce((a,r)=>a+payRow(r).total,0);
+  const sso = rows.reduce((a,r)=>a+payRow(r).sso,0);
+  const M = calcMonth(VIEW);
+  document.getElementById("kpiPay").innerHTML =
+    kpi("ค่าแรงรวมเดือนนี้","฿"+money(tot), rows.length+" คน") +
+    kpi("Labor Cost %", M.revenue>0?pct(M.laborPct):"—","เกณฑ์ 18–25%",M.revenue>0?(M.laborPct>25?"var(--crit)":M.laborPct>22?"var(--serious)":"var(--good-text)"):"") +
+    kpi("เงินสมทบประกันสังคม","฿"+money(sso),"ส่วนของนายจ้าง 5%") +
+    kpi("เฉลี่ยต่อคน","฿"+money(rows.length?tot/rows.length:0));
+
+  const byPos={};
+  rows.forEach(r=>byPos[r.position]=(byPos[r.position]||0)+payRow(r).total);
+  const pk=Object.keys(byPos);
+  document.getElementById("payChart").innerHTML = pk.length
+    ? hGrouped(pk.map(k=>({label:k,vals:[byPos[k]]})),[{name:"ค่าแรงรวม",color:"var(--s2)"}])
+    : `<div class="empty">ยังไม่มีพนักงานในเดือนนี้</div>`;
+
+  document.getElementById("payTable").innerHTML = rows.length ? (
+    `<thead><tr><th>ชื่อ</th><th>ตำแหน่ง</th><th>ประเภท</th><th class="num">อัตรา</th><th class="num">วัน</th><th class="num">ค่าจ้าง</th><th class="num">OT</th><th class="num">อื่นๆ</th><th class="num">ปกส.(นายจ้าง)</th><th class="num">รวมต้นทุน</th><th></th></tr></thead><tbody>`
+    + rows.map(r=>{const p=payRow(r);
+      return `<tr><td>${esc(r.name)}</td><td>${esc(r.position)}</td><td>${r.type==="daily"?"รายวัน":"รายเดือน"}</td>
+      <td class="num">${money(r.rate)}</td><td class="num">${r.type==="daily"?money(r.days):"—"}</td>
+      <td class="num">${money(p.base)}</td><td class="num">${money(r.ot)}</td><td class="num">${money(r.other)}</td>
+      <td class="num">${money(p.sso)}</td><td class="num"><b>${money(p.total)}</b></td>
+      <td><button class="icon-btn" onclick="del('payroll','${r.id}')">ลบ</button></td></tr>`}).join("")
+    + `</tbody><tfoot><tr><td colspan="9">รวมต้นทุนแรงงาน</td><td class="num">${money(tot)}</td><td></td></tr></tfoot>`
+  ) : `<tbody><tr><td class="empty">ยังไม่มีพนักงานในเดือน ${monthTH(VIEW)} — เพิ่มด้านบน หรือกด “คัดลอกจากเดือนก่อน”</td></tr></tbody>`;
+}
+
+/* ---------- Opex ---------- */
+function renderOpex(){
+  const rows = S.opex.filter(r=>r.month===VIEW);
+  const tot = rows.reduce((a,r)=>a+n(r.amount),0);
+  const unpaid = rows.filter(r=>!r.paid).reduce((a,r)=>a+n(r.amount),0);
+  const rent = rows.filter(r=>r.cat==="ค่าเช่าที่").reduce((a,r)=>a+n(r.amount),0);
+  const M = calcMonth(VIEW);
+  document.getElementById("kpiOpex").innerHTML =
+    kpi("ค่าใช้จ่ายประจำรวม","฿"+money(tot), rows.length+" รายการ") +
+    kpi("% ของยอดขาย", M.revenue>0?pct(M.opexPct):"—","เกณฑ์ 15–25%") +
+    kpi("ค่าเช่า","฿"+money(rent), M.revenue>0?`${pct(rent/M.revenue*100)} ของยอดขาย (ควร ≤10%)`:"") +
+    kpi("ค้างจ่าย","฿"+money(unpaid),"",unpaid>0?"var(--serious)":"");
+
+  const byCat={}; rows.forEach(r=>byCat[r.cat]=(byCat[r.cat]||0)+n(r.amount));
+  const ck=Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]);
+  document.getElementById("opexChart").innerHTML = ck.length
+    ? hGrouped(ck.map(k=>({label:k,vals:[byCat[k]]})),[{name:"ค่าใช้จ่าย",color:"var(--s3)"}])
+    : `<div class="empty">ยังไม่มีรายการในเดือนนี้</div>`;
+
+  document.getElementById("opexTable").innerHTML = rows.length ? (
+    `<thead><tr><th>หมวด</th><th>รายละเอียด</th><th class="num">จำนวนเงิน</th><th class="num">% ของค่าใช้จ่ายประจำ</th><th>สถานะ</th><th></th></tr></thead><tbody>`
+    + rows.map(r=>`<tr><td>${esc(r.cat)}</td><td>${esc(r.item)}</td><td class="num">${money(r.amount)}</td>
+      <td class="num">${tot>0?pct(n(r.amount)/tot*100):"—"}</td>
+      <td>${r.paid?'<span class="status-dot" style="background:var(--good)"></span>จ่ายแล้ว':'<span class="status-dot" style="background:var(--serious)"></span>ค้างจ่าย'}</td>
+      <td><button class="icon-btn" onclick="del('opex','${r.id}')">ลบ</button></td></tr>`).join("")
+    + `</tbody><tfoot><tr><td colspan="2">รวม</td><td class="num">${money(tot)}</td><td colspan="3"></td></tr></tfoot>`
+  ) : `<tbody><tr><td class="empty">ยังไม่มีรายการในเดือน ${monthTH(VIEW)}</td></tr></tbody>`;
+}
+
+/* ---------- Sales ---------- */
+function renderSales(){
+  const rows=[...S.sales].sort((a,b)=>a.month<b.month?1:-1);
+  document.getElementById("salesTable").innerHTML = rows.length ? (
+    `<thead><tr><th>เดือน</th><th class="num">ยอดขาย</th><th class="num">จำนวนบิล</th><th class="num">เฉลี่ย/บิล</th><th class="num">ต้นทุนรวม</th><th class="num">กำไร/ขาดทุน</th><th></th></tr></thead><tbody>`
+    + rows.map(r=>{const c=calcMonth(r.month);
+      return `<tr><td>${monthTH(r.month)}</td><td class="num">${money(r.revenue)}</td><td class="num">${money(r.customers)}</td>
+      <td class="num">${money(c.avgBill)}</td><td class="num">${money(c.cost)}</td>
+      <td class="num" style="color:${c.profit>=0?'var(--good-text)':'var(--crit)'}">${c.profit>=0?"":"-"}${money(Math.abs(c.profit))}</td>
+      <td><button class="icon-btn" onclick="del('sales','${r.id}')">ลบ</button></td></tr>`}).join("") + `</tbody>`
+  ) : `<tbody><tr><td class="empty">ยังไม่มีข้อมูลยอดขาย</td></tr></tbody>`;
+
+  const M=calcMonth(VIEW);
+  const fixed = M.labor + M.opex;
+  const box=document.getElementById("beBox");
+  if(fixed<=0){ box.innerHTML=`<div class="empty">ยังไม่มีค่าแรง/ค่าใช้จ่ายประจำในเดือน ${monthTH(VIEW)}</div>`; return; }
+  if(M.revenue<=0){
+    box.innerHTML=`<div class="note-box">ค่าใช้จ่ายคงที่เดือนนี้ (ค่าแรง+ค่าใช้จ่ายประจำ) = <b>฿${money(fixed)}</b><br>
+      ใส่ยอดขายของเดือนนี้ก่อน ระบบถึงจะคำนวณจุดคุ้มทุนได้ (ต้องรู้สัดส่วนต้นทุนวัตถุดิบต่อยอดขาย)</div>`; return;
+  }
+  const be=M.be, gap=M.revenue-be, days=30;
+  box.innerHTML=`
+    <div class="kpis" style="margin-bottom:6px">
+      ${kpi("ยอดขายจุดคุ้มทุน/เดือน","฿"+money(be))}
+      ${kpi("ต่อวัน (30 วัน)","฿"+money(be/days))}
+      ${kpi(gap>=0?"ขายเกินจุดคุ้มทุน":"ยังขาดอีก","฿"+money(Math.abs(gap)),"",gap>=0?"var(--good-text)":"var(--crit)")}
+      ${kpi("ต้องขายกี่บิล/วัน", M.avgBill>0?money(be/days/M.avgBill)+" บิล":"—", M.avgBill>0?`ที่ยอดเฉลี่ย ฿${money(M.avgBill)}/บิล`:"ใส่จำนวนบิลก่อน")}
+    </div>
+    <p class="bench">สูตร: จุดคุ้มทุน = (ค่าแรง + ค่าใช้จ่ายประจำ) ÷ (1 − สัดส่วนต้นทุนวัตถุดิบ) = ฿${money(fixed)} ÷ (1 − ${(M.foodPct/100).toFixed(3)})</p>`;
+}
+
+/* ============================ CHARTS ============================ */
+const TIP = document.getElementById("tip");
+function showTip(e,html){ TIP.innerHTML=html; TIP.style.opacity=1;
+  const x=e.clientX+14, y=e.clientY+14;
+  TIP.style.left=Math.min(x, innerWidth-TIP.offsetWidth-10)+"px";
+  TIP.style.top=Math.min(y, innerHeight-TIP.offsetHeight-10)+"px"; }
+function hideTip(){ TIP.style.opacity=0; }
+function niceMax(v){ if(v<=0)return 100; const p=Math.pow(10,Math.floor(Math.log10(v))); const s=[1,1.5,2,2.5,3,4,5,7.5,10];
+  for(const f of s){ if(v<=f*p) return f*p; } return 10*p; }
+
+/* vertical grouped bars */
+function groupedBars(data, series){
+  const W=760,H=260,ML=64,MR=10,MT=12,MB=42;
+  const iw=W-ML-MR, ih=H-MT-MB;
+  const max=niceMax(Math.max(...data.flatMap(d=>d.vals),1));
+  const gw=iw/data.length, sn=series.length;
+  const bw=Math.min(38,(gw-14)/sn);
+  let g="";
+  for(let i=0;i<=4;i++){ const y=MT+ih-ih*i/4;
+    g+=`<line x1="${ML}" y1="${y}" x2="${W-MR}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>
+        <text x="${ML-8}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--muted)">${money(max*i/4)}</text>`; }
+  let b="";
+  data.forEach((d,i)=>{
+    const gx=ML+gw*i+(gw-bw*sn-2*(sn-1))/2;
+    d.vals.forEach((v,j)=>{
+      const h=Math.max(v/max*ih,0), x=gx+j*(bw+2), y=MT+ih-h;
+      const tip=`<b>${esc(d.label)}</b>`+series.map((s,k)=>`<div class="row"><span>${s.name}</span><span>฿${money(d.vals[k])}</span></div>`).join("");
+      b+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="${series[j].color}"
+        onmousemove='showTip(event,${JSON.stringify(tip).replace(/'/g,"&#39;")})' onmouseleave="hideTip()"/>`;
+    });
+    b+=`<text x="${ML+gw*i+gw/2}" y="${H-MB+18}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${esc(d.label)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">${g}
+    <line x1="${ML}" y1="${MT+ih}" x2="${W-MR}" y2="${MT+ih}" stroke="var(--axis)" stroke-width="1"/>${b}</svg>`;
+}
+
+/* horizontal grouped bars */
+function hGrouped(data, series){
+  const W=760, rowH=series.length>1?46:30, ML=170, MR=90, MT=8, MB=10;
+  const H=MT+MB+rowH*data.length;
+  const iw=W-ML-MR;
+  const max=niceMax(Math.max(...data.flatMap(d=>d.vals),1));
+  const bh=series.length>1?15:13;
+  let out="";
+  data.forEach((d,i)=>{
+    const y0=MT+rowH*i+ (rowH-(bh*series.length+2*(series.length-1)))/2;
+    out+=`<text x="${ML-10}" y="${MT+rowH*i+rowH/2+4}" text-anchor="end" font-size="11.5" fill="var(--ink-2)">${esc(d.label.length>22?d.label.slice(0,21)+"…":d.label)}</text>`;
+    d.vals.forEach((v,j)=>{
+      const w=Math.max(v/max*iw,0), y=y0+j*(bh+2);
+      const tip=`<b>${esc(d.label)}</b>`+series.map((s,k)=>`<div class="row"><span>${s.name}</span><span>฿${money(d.vals[k])}</span></div>`).join("");
+      out+=`<rect x="${ML}" y="${y}" width="${w}" height="${bh}" rx="4" fill="${series[j].color}"
+        onmousemove='showTip(event,${JSON.stringify(tip).replace(/'/g,"&#39;")})' onmouseleave="hideTip()"/>`;
+      if(series.length===1||j===series.length-1)
+        out+=`<text x="${ML+w+7}" y="${y+bh-3}" font-size="11" fill="var(--ink-2)" font-variant-numeric="tabular-nums">${money(v)}</text>`;
+    });
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img"><line x1="${ML}" y1="${MT}" x2="${ML}" y2="${H-MB}" stroke="var(--axis)"/>${out}</svg>`;
+}
+
+/* donut */
+function donut(items,total){
+  const S_=260, R=100, r=62, cx=S_/2, cy=S_/2;
+  let a=-Math.PI/2, out="";
+  items.forEach(([label,val,col])=>{
+    const frac=val/total, a2=a+frac*Math.PI*2;
+    const big=frac>0.5?1:0;
+    const p=(rad,ang)=>[cx+rad*Math.cos(ang),cy+rad*Math.sin(ang)];
+    const [x1,y1]=p(R,a),[x2,y2]=p(R,a2),[x3,y3]=p(r,a2),[x4,y4]=p(r,a);
+    const tip=`<b>${esc(label)}</b><div class="row"><span>จำนวน</span><span>฿${money(val)}</span></div><div class="row"><span>สัดส่วน</span><span>${pct(frac*100)}</span></div>`;
+    out+=`<path d="M${x1} ${y1} A${R} ${R} 0 ${big} 1 ${x2} ${y2} L${x3} ${y3} A${r} ${r} 0 ${big} 0 ${x4} ${y4} Z"
+      fill="${col}" stroke="var(--surface-1)" stroke-width="2"
+      onmousemove='showTip(event,${JSON.stringify(tip).replace(/'/g,"&#39;")})' onmouseleave="hideTip()"/>`;
+    a=a2;
+  });
+  out+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="12" fill="var(--muted)">ต้นทุนรวม</text>
+        <text x="${cx}" y="${cy+20}" text-anchor="middle" font-size="21" font-weight="650" fill="var(--ink)">฿${money(total)}</text>`;
+  return `<svg viewBox="0 0 ${S_} ${S_}" style="max-width:300px;margin:0 auto" role="img">${out}</svg>`;
+}
+
+/* ============================ ACTIONS ============================ */
+function setMeta(k,v){ S.meta[k]= k==="targetMargin"?n(v):v;
+  if(k==="name") document.getElementById("shopTitle").textContent = v||"ระบบบัญชีต้นทุนร้านอาหาร";
+  if(k==="targetMargin") renderDash(); }
+function setMonth(m){ VIEW=m; render(); }
+function val(id){ return document.getElementById(id).value; }
+function chk(id){ return document.getElementById(id).checked; }
+function clr(ids){ ids.forEach(i=>document.getElementById(i).value=""); }
+
+function addSetup(){
+  const item=val("su_item").trim();
+  if(!item && !n(val("su_budget")) && !n(val("su_actual"))) return alert("กรอกชื่อรายการหรือจำนวนเงินก่อน");
+  S.setup.push({id:uid(),cat:val("su_cat"),item:item||"(ไม่ระบุ)",vendor:val("su_vendor").trim(),
+    budget:n(val("su_budget")),actual:n(val("su_actual")),date:val("su_date"),paid:chk("su_paid")});
+  clr(["su_item","su_vendor","su_budget","su_actual"]); render();
+}
+function addBuy(){
+  const amt=n(val("bu_amt")); if(!amt) return alert("ใส่จำนวนเงินก่อน");
+  const d=val("bu_date")|| new Date().toISOString().slice(0,10);
+  S.purchases.push({id:uid(),date:d,cat:val("bu_cat"),item:val("bu_item").trim()||"(ไม่ระบุ)",
+    vendor:val("bu_vendor").trim(),amount:amt,paid:chk("bu_paid")});
+  VIEW=d.slice(0,7); clr(["bu_item","bu_amt"]); render();
+}
+function addPay(){
+  const name=val("pa_name").trim(); if(!name) return alert("ใส่ชื่อพนักงานก่อน");
+  const m=val("pa_month")||VIEW;
+  S.payroll.push({id:uid(),month:m,name,position:val("pa_pos"),type:val("pa_type"),
+    rate:n(val("pa_rate")),days:n(val("pa_days")),ot:n(val("pa_ot")),other:n(val("pa_other")),sso:chk("pa_sso")});
+  VIEW=m; document.getElementById("pa_name").value=""; document.getElementById("pa_ot").value=0;
+  document.getElementById("pa_other").value=0; render();
+}
+function addOpex(){
+  const amt=n(val("op_amt")); if(!amt) return alert("ใส่จำนวนเงินก่อน");
+  const m=val("op_month")||VIEW;
+  S.opex.push({id:uid(),month:m,cat:val("op_cat"),item:val("op_item").trim(),amount:amt,paid:chk("op_paid")});
+  VIEW=m; clr(["op_item","op_amt"]); render();
+}
+function copyPrevOpex(){
+  const ms=[...new Set(S.opex.map(r=>r.month))].sort().filter(m=>m<VIEW);
+  if(!ms.length) return alert("ไม่มีข้อมูลเดือนก่อนหน้าให้คัดลอก");
+  const src=ms[ms.length-1];
+  S.opex.filter(r=>r.month===src).forEach(r=>S.opex.push({...r,id:uid(),month:VIEW,paid:false}));
+  render(); alert("คัดลอกจากเดือน "+monthTH(src)+" เรียบร้อย (ตั้งเป็น “ค้างจ่าย” ไว้ก่อน)");
+}
+function addSales(){
+  const m=val("sa_month")||VIEW, rev=n(val("sa_rev"));
+  const ex=S.sales.find(r=>r.month===m);
+  if(ex){ ex.revenue=rev; ex.customers=n(val("sa_cust")); }
+  else S.sales.push({id:uid(),month:m,revenue:rev,customers:n(val("sa_cust"))});
+  VIEW=m; render();
+}
+function del(coll,id){ if(!confirm("ลบรายการนี้?"))return; S[coll]=S[coll].filter(r=>r.id!==id); render(); }
+function clearAll(){ if(!confirm("ล้างข้อมูลทั้งหมด? (ควรกดบันทึกไฟล์ก่อน)"))return; S=blank(); VIEW=ym(new Date()); render(); }
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute("data-theme");
+  document.documentElement.setAttribute("data-theme",cur==="dark"?"light":"dark");
+}
+
+/* ---------- import/export ---------- */
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=(S.meta.name||"ต้นทุนร้านอาหาร").replace(/[\\/:*?"<>|]/g,"")+"-"+new Date().toISOString().slice(0,10)+".json";
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importData(){ document.getElementById("fileIn").click(); }
+document.getElementById("fileIn").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{ try{ const d=JSON.parse(rd.result);
+      S=Object.assign(blank(),d);
+      ["setup","purchases","payroll","opex","sales"].forEach(k=>{ if(!Array.isArray(S[k])) S[k]=[]; S[k].forEach(r=>{ if(!r.id) r.id=uid(); }); });
+      const ms=monthsList(); VIEW=ms[ms.length-1]||ym(new Date());
+      render(); alert("โหลดข้อมูลเรียบร้อย");
+    }catch(err){ alert("ไฟล์ไม่ถูกต้อง: "+err.message); } };
+  rd.readAsText(f); e.target.value="";
+});
+function exportCSV(coll){
+  const rows=S[coll]; if(!rows.length) return alert("ไม่มีข้อมูล");
+  const keys=Object.keys(rows[0]).filter(k=>k!=="id");
+  const lines=[keys.join(",")].concat(rows.map(r=>keys.map(k=>`"${String(r[k]==null?"":r[k]).replace(/"/g,'""')}"`).join(",")));
+  const blob=new Blob(["﻿"+lines.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=coll+".csv"; a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ---------- demo ---------- */
+function loadDemo(){
+  if(S.setup.length||S.purchases.length){ if(!confirm("จะแทนที่ข้อมูลปัจจุบันด้วยตัวอย่าง ต่อไหม?")) return; }
+  const today=new Date();
+  const M0=ym(new Date(today.getFullYear(),today.getMonth()-1,15));
+  const M1=ym(new Date(today.getFullYear(),today.getMonth()-2,15));
+  S=blank();
+  S.meta={name:"ร้านตัวอย่าง ครัวคุณแม่",openDate:M1+"-01",targetMargin:15};
+  const su=[["ตกแต่ง/ก่อสร้าง","รีโนเวทหน้าร้าน+ทาสี","หจก.สมชายก่อสร้าง",250000,268000,true],
+    ["ตกแต่ง/ก่อสร้าง","ระบบไฟ+ปลั๊ก","ช่างเอ",45000,42500,true],
+    ["เฟอร์นิเจอร์","โต๊ะ 12 ตัว + เก้าอี้ 48 ตัว","อินเด็กซ์",120000,134000,true],
+    ["อุปกรณ์ครัว","เตาแก๊ส 4 หัว + ฮูดดูดควัน","ครัวไทยซัพพลาย",95000,95000,true],
+    ["อุปกรณ์ครัว","ตู้แช่ 2 ประตู + ตู้เย็น","อิเล็กโทรลักซ์",78000,81500,true],
+    ["อุปกรณ์เสิร์ฟ/ภาชนะ","จาน ชาม ช้อน แก้ว","ตลาดสำเพ็ง",35000,31200,true],
+    ["ป้าย/แบรนด์","ป้ายหน้าร้าน+โลโก้","ป้ายดีไซน์",42000,45000,true],
+    ["ระบบ POS/ไอที","เครื่อง POS + ลิ้นชักเงิน","FoodStory",28000,28000,true],
+    ["ใบอนุญาต/จดทะเบียน","จดทะเบียน+ใบอนุญาตอาหาร","-",12000,10800,true],
+    ["เงินมัดจำ/ค่าเซ้ง","มัดจำค่าเช่า 3 เดือน","เจ้าของตึก",105000,105000,true],
+    ["วัตถุดิบตั้งต้น","สต๊อกวัตถุดิบล็อตแรก","หลายร้าน",60000,64500,true],
+    ["การตลาดเปิดร้าน","ป้ายไวนิล+โปรโมทเพจ","-",25000,22000,false],
+    ["เงินสำรองหมุนเวียน","เงินสำรอง 3 เดือน","-",150000,150000,true]];
+  su.forEach(x=>S.setup.push({id:uid(),cat:x[0],item:x[1],vendor:x[2],budget:x[3],actual:x[4],date:M1+"-05",paid:x[5]}));
+
+  const buyCats=CATS.buy;
+  [M1,M0].forEach((m,mi)=>{
+    for(let d=1;d<=28;d+=2){
+      const day=String(d).padStart(2,"0");
+      const picks=[[0,4500+((d*137)%2600)],[1,1800+((d*91)%1200)],[2,1200+((d*53)%900)],[5,600+((d*31)%400)]];
+      picks.forEach(([ci,amt])=>{
+        S.purchases.push({id:uid(),date:`${m}-${day}`,cat:buyCats[ci],
+          item:["หมู/ไก่/เนื้อ","ผักสด","ของแห้ง เครื่องปรุง","กล่อง/ถุง/ช้อนพลาสติก"][picks.findIndex(p=>p[0]===ci)]||"วัตถุดิบ",
+          vendor:["ตลาดสด","ตลาดสด","แม็คโคร","ร้านบรรจุภัณฑ์"][picks.findIndex(p=>p[0]===ci)]||"-",
+          amount:Math.round(amt), paid:true});
+      });
+    }
+  });
+
+  const staff=[["สมชาย (เจ้าของ)","เจ้าของ/ผู้จัดการ","monthly",25000,0],
+    ["ป้าแดง","เชฟ/หัวหน้าครัว","monthly",22000,1500],
+    ["น้องบี","ผู้ช่วยครัว","monthly",13000,900],
+    ["น้องเมย์","พนักงานเสิร์ฟ","monthly",12000,1200],
+    ["น้องโอ๊ต","พนักงานเสิร์ฟ","daily",480,0],
+    ["พี่นิด","ล้างจาน/ทำความสะอาด","daily",400,0]];
+  [M1,M0].forEach(m=>staff.forEach(s=>S.payroll.push({id:uid(),month:m,name:s[0],position:s[1],
+    type:s[2],rate:s[3],days:s[2]==="daily"?26:30,ot:s[4],other:0,sso:true})));
+
+  const op=[["ค่าเช่าที่","ค่าเช่ารายเดือน",35000],["ค่าไฟ","การไฟฟ้า",18500],["ค่าน้ำ","การประปา",3200],
+    ["ค่าแก๊ส","แก๊สหุงต้ม 6 ถัง",4800],["อินเทอร์เน็ต/โทรศัพท์","ไฟเบอร์ 500/50",800],
+    ["ค่าธรรมเนียมเดลิเวอรี","GP แอปเดลิเวอรี",12000],["การตลาด/โฆษณา","ยิงแอดเพจ",5000],
+    ["ทำความสะอาด/ขยะ","ค่าเก็บขยะ+น้ำยา",1500],["ซ่อมบำรุง","ล้างแอร์+ซ่อมเตา",2500]];
+  [M1,M0].forEach(m=>op.forEach(o=>S.opex.push({id:uid(),month:m,cat:o[0],item:o[1],amount:o[2],paid:true})));
+
+  S.sales.push({id:uid(),month:M1,revenue:385000,customers:2650});
+  S.sales.push({id:uid(),month:M0,revenue:412000,customers:2810});
+  VIEW=M0; render(); go("dash");
+}
+
+/* ============================ INIT ============================ */
+function fillSelect(id,arr){ document.getElementById(id).innerHTML=arr.map(c=>`<option>${c}</option>`).join(""); }
+function init(){
+  buildTabs();
+  fillSelect("su_cat",CATS.setup); fillSelect("bu_cat",CATS.buy);
+  fillSelect("pa_pos",CATS.pos); fillSelect("op_cat",CATS.opex);
+  const t=new Date().toISOString().slice(0,10);
+  document.getElementById("bu_date").value=t;
+  document.getElementById("su_date").value=t;
+  document.getElementById("pa_month").value=VIEW;
+  document.getElementById("op_month").value=VIEW;
+  document.getElementById("sa_month").value=VIEW;
+  render();
+}
+init();
+</script>
+</body>
+</html>
